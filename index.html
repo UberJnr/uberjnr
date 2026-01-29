@@ -25,8 +25,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
         window.db = db;
         window.fb = { ref, set, onValue, update, remove };
+        
+        window.dispatchEvent(new Event('firebase-ready'));
         
         emailjs.init("s8K2wPwkBJHNJVlO5"); 
     </script>
@@ -64,7 +67,6 @@
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-dark { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
         
-        /* BANDEAU PROMO */
         .promo-container {
             background: var(--u-green);
             overflow: hidden;
@@ -338,7 +340,7 @@
     <main>
         <section class="pt-48 md:pt-64 pb-12 text-center px-4">
             <div id="statusIndicator" class="inline-flex items-center px-4 py-2 rounded-full border border-white/10 glass mb-6 md:mb-10 text-[9px] font-black uppercase tracking-widest">
-                </div>
+            </div>
             <h1 class="hero-title">
                 <span>UBER</span><br>
                 <span class="text-green-500">JNR</span>
@@ -353,7 +355,7 @@
         </section>
 
         <section id="catalogue" class="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 pb-24 md:pb-32">
-            </section>
+        </section>
 
         <section class="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24 border-t border-white/5">
             <h2 class="text-2xl md:text-3xl font-900 italic uppercase text-center mb-10 md:mb-16">
@@ -375,25 +377,7 @@
                         <span class="text-green-500">+</span>
                     </button>
                     <div class="faq-ans text-[10px] uppercase">
-                        Nous livrons en moyenne entre 30 et 45 minutes selon votre localisation et l'affluence des commandes.
-                    </div>
-                </div>
-                <div class="glass rounded-2xl overflow-hidden">
-                    <button onclick="toggleFaq(this)" class="w-full p-5 text-left flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase">Où livrez-vous précisément ?</span>
-                        <span class="text-green-500">+</span>
-                    </button>
-                    <div class="faq-ans text-[10px] uppercase">
-                        Nous couvrons toute la ville de Troyes ainsi que les communes de l'agglomération (Sainte-Savine, La Chapelle, Pont-Sainte-Marie, etc.).
-                    </div>
-                </div>
-                <div class="glass rounded-2xl overflow-hidden">
-                    <button onclick="toggleFaq(this)" class="w-full p-5 text-left flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase">Quels sont vos horaires ?</span>
-                        <span class="text-green-500">+</span>
-                    </button>
-                    <div class="faq-ans text-[10px] uppercase">
-                        Nous sommes ouverts 7j/7 de 11h00 à minuit. En dehors de ces horaires, vous pouvez passer une pré-commande.
+                        Nous livrons en moyenne entre 30 et 45 minutes selon votre localisation.
                     </div>
                 </div>
             </div>
@@ -405,7 +389,7 @@
             <div>
                 <div class="text-xl font-800 italic mb-4 uppercase">UBER<span class="text-green-500">JNR</span></div>
                 <p class="text-[9px] font-bold opacity-30 uppercase leading-loose">
-                    Le service numéro 1 de livraison de Puffs premium à Troyes. Qualité garantie, livraison express.
+                    Le service numéro 1 de livraison de Puffs premium à Troyes. Qualité garantie.
                 </p>
             </div>
             <div class="flex flex-col gap-3">
@@ -417,31 +401,18 @@
             </div>
             <div class="flex flex-col items-center md:items-end gap-3">
                 <h4 class="text-[9px] font-black uppercase text-green-500 tracking-widest">Authenticité</h4>
-                <button onclick="toggleVerifyModal()" class="bg-green-500 text-black px-6 py-3 rounded-xl font-900 text-[10px] uppercase italic hover:scale-105 transition-transform">
+                <button onclick="toggleVerifyModal()" class="bg-green-500 text-black px-6 py-3 rounded-xl font-900 text-[10px] uppercase italic">
                     💎 VÉRIFIER MON PRODUIT
                 </button>
             </div>
-        </div>
-        <div class="text-center mt-16 pt-8 border-t border-white/5">
-            <p class="text-[8px] font-bold opacity-20 uppercase tracking-[0.3em]">© 2024 UBER JNR - INTERDIT AUX MINEURS</p>
         </div>
     </footer>
 
     <div id="verifyModal" class="modal">
         <div class="glass p-8 rounded-[2.5rem] max-w-md w-full relative">
-            <button onclick="toggleVerifyModal()" class="absolute top-6 right-6 text-3xl opacity-20 hover:opacity-100 transition-opacity">&times;</button>
-            <h2 class="text-2xl font-900 uppercase italic text-center mb-6 text-green-500">AUTHENTICITÉ <br><span class="text-white">JNR VAPES</span></h2>
-            <div class="space-y-4 text-[11px] font-bold uppercase tracking-wide">
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <p class="text-green-500 mb-2">1. QR CODE DE SÉCURITÉ</p>
-                    <p class="opacity-60 leading-relaxed text-[9px]">Chaque boîte JNR possède un QR code unique sur le côté. Scannez-le pour vérifier l'authenticité sur le site officiel.</p>
-                </div>
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <p class="text-green-500 mb-2">2. NUMÉRO DE SÉRIE UNIQUE</p>
-                    <p class="opacity-60 leading-relaxed text-[9px]">Grattez la zone grise pour révéler votre code de sécurité unique à 16 chiffres.</p>
-                </div>
-                <a href="https://www.jnrvape.com/verify-product" target="_blank" class="block w-full bg-white text-black py-4 rounded-xl text-center font-900 tracking-widest hover:bg-green-500 transition-colors mt-2">PORTAIL OFFICIEL JNR</a>
-            </div>
+            <button onclick="toggleVerifyModal()" class="absolute top-6 right-6 text-3xl opacity-20">&times;</button>
+            <h2 class="text-2xl font-900 uppercase italic text-center mb-6 text-green-500">AUTHENTICITÉ</h2>
+            <a href="https://www.jnrvape.com/verify-product" target="_blank" class="block w-full bg-white text-black py-4 rounded-xl text-center font-900 tracking-widest">PORTAIL OFFICIEL JNR</a>
         </div>
     </div>
 
@@ -449,598 +420,331 @@
 
     <div id="successModal" class="modal">
         <div class="glass p-10 rounded-[3rem] text-center max-w-sm w-full">
-            <div class="check-container">
-                <div class="check-mark"></div>
-            </div>
-            <h2 class="text-2xl font-900 italic uppercase mb-4">COMMANDE PRÊTE !</h2>
-            <p class="text-[10px] font-bold bg-white/5 p-4 rounded-2xl border border-white/10 uppercase italic leading-loose">
-                La dernière étape est cruciale : Cliquez sur le bouton <span class="text-green-500">"ENVOYER"</span> sur WhatsApp pour que nous recevions votre commande !
-            </p>
+            <div class="check-container"><div class="check-mark"></div></div>
+            <h2 class="text-2xl font-900 italic uppercase mb-4 text-green-500">COMMANDE REÇUE !</h2>
         </div>
     </div>
 
-    <div id="cartModal" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-black z-[20000] transform translate-x-full transition-transform duration-500 flex flex-col border-l border-white/10 shadow-2xl">
-        <div class="p-6 flex justify-between items-center border-b border-white/5">
-            <h2 class="text-xl font-900 italic uppercase tracking-tighter">Votre Panier</h2>
-            <button onclick="toggleCart()" class="text-3xl hover:text-green-500 transition-colors">&times;</button>
-        </div>
-        
-        <div id="cartItems" class="flex-grow p-6 overflow-y-auto space-y-4">
-            </div>
-
+    <div id="cartModal" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-black z-[20000] transform translate-x-full transition-transform duration-500 flex flex-col border-l border-white/10">
+        <div class="p-6 flex justify-between items-center border-b border-white/5"><h2 class="text-xl font-900 italic uppercase">Panier</h2><button onclick="toggleCart()" class="text-3xl">&times;</button></div>
+        <div id="cartItems" class="flex-grow p-6 overflow-y-auto space-y-4"></div>
         <div class="p-6 bg-[#050505] border-t border-white/5 space-y-3">
-            <div class="flex justify-between items-end mb-2">
-                <span class="text-[9px] opacity-40 uppercase font-black tracking-widest">Total à payer</span>
-                <span id="totalAmount" class="text-3xl font-900 text-green-500 italic">0€</span>
+            <div class="flex justify-between items-end mb-2"><span id="totalAmount" class="text-3xl font-900 text-green-500 italic">0€</span></div>
+            <input type="text" id="uStreet" placeholder="RUE" class="address-input uppercase">
+            <input type="text" id="uZip" placeholder="CODE POSTAL" class="address-input uppercase">
+            <div class="grid grid-cols-2 gap-3">
+                <select id="uZone" onchange="renderCart()" class="address-input uppercase"><option value="Troyes">Troyes</option><option value="Agglo">Agglo</option></select>
+                <select id="uPay" onchange="renderCart()" class="address-input uppercase"><option value="Espèces">Espèces</option><option value="CB">CB</option></select>
             </div>
-
-            <div class="space-y-3 pt-4">
-                <input type="text" id="uStreet" placeholder="NUMÉRO ET NOM DE RUE" class="address-input uppercase font-bold">
-                <input type="text" id="uZip" placeholder="CODE POSTAL" class="address-input uppercase font-bold">
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="uZone" onchange="renderCart()" class="address-input uppercase font-bold text-[11px]">
-                        <option value="Troyes">Troyes (Gratuit)</option>
-                        <option value="Agglo">Agglo (+3.00€)</option>
-                    </select>
-                    <select id="uPay" onchange="renderCart()" class="address-input uppercase font-bold text-[11px]">
-                        <option value="Espèces">Paiement Espèces</option>
-                        <option value="CB">Paiement CB (+0.50€)</option>
-                    </select>
-                </div>
-            </div>
-
-            <button onclick="sendOrder()" id="btnSendOrder" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic transition-all hover:scale-[1.02] active:scale-95 mt-4">
-                </button>
+            <button onclick="sendOrder()" id="btnSendOrder" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic mt-4"></button>
         </div>
     </div>
 
     <div id="invoiceModal" class="modal">
         <div class="invoice-box relative shadow-2xl">
-            <button onclick="closeInvoice()" class="absolute top-4 right-4 text-black font-bold text-xs hover:bg-black hover:text-white p-1 rounded transition-colors">[FERMER]</button>
-            <div class="text-center border-b-2 border-black pb-4 mb-4">
-                <h2 class="text-xl font-black italic tracking-tighter">UBER JNR</h2>
-                <p id="invNum" class="text-[10px] font-bold uppercase"></p>
-            </div>
-            <div class="py-4 text-[10px] space-y-1 font-bold border-b border-black/10">
-                <p id="invDate"></p>
-                <p id="invUser"></p>
-                <p id="invAddr" class="uppercase"></p>
-            </div>
-            <table class="w-full text-[10px] mb-6 mt-4">
-                <thead><tr class="border-b border-black"><th class="text-left pb-2">PRODUIT</th><th class="text-right pb-2">PRIX</th></tr></thead>
-                <tbody id="invItems" class="font-bold uppercase"></tbody>
-            </table>
+            <button onclick="closeInvoice()" class="absolute top-4 right-4 text-black font-bold text-xs">[FERMER]</button>
+            <div class="text-center border-b-2 border-black pb-4 mb-4"><h2 class="text-xl font-black italic">UBER JNR</h2><p id="invNum" class="text-[10px] font-bold uppercase"></p></div>
+            <div class="py-4 text-[10px] space-y-1 font-bold border-b border-black/10"><p id="invDate"></p><p id="invUser"></p><p id="invAddr" class="uppercase"></p></div>
+            <table class="w-full text-[10px] mb-6 mt-4"><thead><tr class="border-b border-black"><th class="text-left pb-2">PRODUIT</th><th class="text-right pb-2">PRIX</th></tr></thead><tbody id="invItems" class="font-bold uppercase"></tbody></table>
             <div class="border-t-2 border-black pt-4 font-black text-right text-lg italic" id="invTotal"></div>
-            <div class="text-[8px] text-center mt-8 opacity-40 font-bold uppercase">Merci de votre confiance !<br>À tout de suite.</div>
         </div>
     </div>
 
     <div id="authModal" class="modal">
         <div class="max-w-md w-full glass p-8 rounded-[2.5rem] relative">
-            <button onclick="closeAuth()" class="absolute top-6 right-6 text-3xl opacity-20 hover:opacity-100 transition-opacity">&times;</button>
+            <button onclick="closeAuth()" class="absolute top-6 right-6 text-3xl opacity-20">&times;</button>
             
             <div id="profileContent" class="hidden space-y-6">
-                <div class="text-center">
-                    <h2 id="profileName" class="text-lg font-900 text-green-500 uppercase italic"></h2>
-                    <p class="text-[9px] opacity-40 uppercase font-black tracking-widest mt-1">VOTRE CARTE DE FIDÉLITÉ</p>
-                </div>
-                <div id="loyaltyBar" class="grid grid-cols-10 gap-1.5 py-4">
+                <div id="profileTextHeader" class="space-y-4">
                     </div>
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
-                    <p class="text-[8px] font-black uppercase opacity-60">PROCHAINE OFFERTE DANS</p>
-                    <p id="loyaltyStatus" class="text-2xl font-900 italic text-green-500 mt-1"></p>
+                
+                <div id="loyaltyBar" class="grid grid-cols-10 gap-1.5 py-4"></div>
+                
+                <div class="border-t border-white/10 pt-4">
+                    <p class="text-[9px] font-black uppercase text-green-500 mb-4 tracking-widest">Historique Commandes</p>
+                    <div id="userOrdersList" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                        </div>
                 </div>
-                <div id="userOrdersList" class="space-y-2 max-h-48 overflow-y-auto pr-2">
-                    </div>
-                <button onclick="handleLogout()" class="w-full text-red-500 font-black text-[9px] uppercase underline mt-4 hover:text-white transition-colors">Se déconnecter de mon compte</button>
+
+                <button onclick="handleLogout()" class="w-full text-red-500 font-black text-[9px] uppercase underline mt-4 tracking-widest">Déconnexion</button>
             </div>
 
             <div id="authForms" class="space-y-4">
-                <h2 class="text-xl font-900 uppercase text-center mb-6 italic tracking-tighter">Espace Fidélité</h2>
-                <div class="space-y-3">
-                    <input type="email" id="authEmail" placeholder="VOTRE EMAIL" class="address-input">
-                    <input type="password" id="authPass" placeholder="MOT DE PASSE" class="address-input">
-                </div>
-                <button onclick="handleLogin()" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic hover:scale-[1.02] active:scale-95 transition-all">Se connecter</button>
-                <button onclick="handleRegister()" class="w-full text-[9px] font-black opacity-40 uppercase hover:opacity-100 transition-opacity">Pas encore de compte ? Créer un profil</button>
+                <h2 class="text-xl font-900 uppercase text-center mb-6 italic">Espace Fidélité</h2>
+                <input type="email" id="authEmail" placeholder="EMAIL" class="address-input">
+                <input type="password" id="authPass" placeholder="MOT DE PASSE" class="address-input">
+                <button onclick="handleLogin()" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic">Se connecter</button>
+                <button onclick="handleRegister()" class="w-full text-[9px] font-black opacity-40 uppercase text-center">Créer un profil</button>
             </div>
         </div>
     </div>
 
     <div id="adminPanel" class="fixed inset-0 z-[30000] bg-black overflow-y-auto hidden p-4 md:p-8">
         <div class="max-w-6xl mx-auto space-y-8 pb-20">
-            <div class="flex justify-between items-center border-b border-white/10 pb-6">
-                <h2 class="text-2xl font-900 text-green-500 uppercase italic tracking-tighter">Admin Panel</h2>
-                <div class="flex items-center gap-3">
-                    <button id="toggleAudioBtn" onclick="toggleAudio()" class="w-12 h-12 rounded-xl border border-white/10 glass flex items-center justify-center text-xl hover:bg-white/5 transition-colors">
-                        🔇
-                    </button>
-                    <button onclick="closeAdmin()" class="text-4xl hover:text-green-500 transition-colors">&times;</button>
-                </div>
-            </div>
-
+            <div class="flex justify-between items-center border-b border-white/10 pb-6"><h2 class="text-2xl font-900 text-green-500 uppercase italic">Admin Panel</h2><button onclick="closeAdmin()" class="text-4xl">&times;</button></div>
+            
             <div class="grid lg:grid-cols-3 gap-6">
                 <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest mb-2">Ajouter un nouveau goût</h3>
+                    <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest">Ajouter un produit</h3>
                     <input type="text" id="newProdName" placeholder="NOM DU GOÛT" class="address-input">
-                    <input type="number" id="newProdStock" placeholder="STOCK INITIAL" class="address-input">
-                    <div id="dropzone" class="w-full h-32 rounded-2xl border-2 border-dashed border-white/10 relative bg-white/5 flex items-center justify-center hover:border-green-500 transition-colors group">
-                        <p class="text-[9px] font-black opacity-20 uppercase group-hover:opacity-100">Cliquer pour l'image</p>
+                    <input type="number" id="newProdStock" placeholder="QUANTITÉ STOCK" class="address-input">
+                    <div class="w-full h-32 rounded-2xl border-2 border-dashed border-white/10 relative bg-white/5 flex items-center justify-center">
                         <img id="preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
                         <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                        <p class="text-[8px] font-bold opacity-30 uppercase">Cliquez pour photo</p>
                     </div>
-                    <button onclick="addNewProductAdmin()" class="w-full bg-white text-black py-3 rounded-xl font-black uppercase text-[10px] hover:bg-green-500 transition-colors">Ajouter au catalogue</button>
+                    <button onclick="addNewProductAdmin()" class="w-full bg-white text-black py-3 rounded-xl font-black uppercase text-[10px]">Valider l'ajout</button>
                 </div>
-
-                <div class="glass p-6 rounded-3xl text-center flex flex-col justify-center items-center">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">État de la Boutique</h3>
-                    <button onclick="toggleStoreStatus()" id="statusBtn" class="w-full py-8 rounded-2xl font-black uppercase italic text-lg shadow-2xl transition-all active:scale-95">
-                        </button>
+                <div class="glass p-6 rounded-3xl text-center">
+                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">État Boutique</h3>
+                    <button onclick="toggleStoreStatus()" id="statusBtn" class="w-full py-8 rounded-2xl font-black uppercase italic transition-all"></button>
                 </div>
-
                 <div class="glass p-6 rounded-3xl">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">Base Clients</h3>
-                    <div id="adminUserList" class="max-h-48 overflow-y-auto space-y-2 pr-2">
-                        </div>
+                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">Clients</h3>
+                    <div id="adminUserList" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
                 </div>
             </div>
 
             <div class="glass p-6 rounded-3xl">
-                <h3 class="text-[10px] font-black text-green-500 uppercase mb-6 tracking-widest">Gestion des commandes</h3>
-                <div id="adminOrdersDisplay" class="space-y-3">
-                    </div>
+                <h3 class="text-[10px] font-black text-green-500 uppercase mb-6 tracking-widest">Dernières Commandes Globales</h3>
+                <div id="adminOrdersDisplay" class="space-y-3"></div>
             </div>
 
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-[10px] font-black text-green-500 uppercase mb-6 tracking-widest">Gestion des stocks</h3>
-                <div id="adminStockList" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    </div>
-            </div>
+            <div id="adminStockList" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
         </div>
     </div>
 
     <script>
         const MON_WHATSAPP = "33785141135";
         const ADMIN_PASS = "2908";
-        
-        let inventory = [];
-        let users = [];
-        let allOrders = [];
-        let storeStatus = true;
-        let currentUser = null;
-        let cart = [];
-        let tempImageData = "";
-        let audioEnabled = (localStorage.getItem('admin_audio') === 'true');
-        let lastKnownOrderCount = 0;
+        let inventory = [], users = [], allOrders = [], storeStatus = true, currentUser = null, cart = [], tempImageData = "";
 
-        const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        const successSound = new Audio('https://www.soundjay.com/buttons/sounds/beep-24.mp3');
-
-        // INITIALISATION
-        setTimeout(() => {
-            if(!window.fb) return;
+        window.addEventListener('firebase-ready', () => {
             const { ref, onValue } = window.fb;
-
-            // Sync Inventory
-            onValue(ref(window.db, 'inventory'), snap => {
-                inventory = snap.val() ? Object.values(snap.val()) : [];
-                renderCatalogue();
-                refreshAdmin();
+            onValue(ref(window.db, 'inventory'), snap => { inventory = snap.val() ? Object.values(snap.val()) : []; renderCatalogue(); refreshAdmin(); });
+            onValue(ref(window.db, 'users'), snap => { 
+                users = snap.val() ? Object.entries(snap.val()).map(([key, val]) => ({...val, fbKey: key})) : []; 
+                updateUserUI(); 
+                refreshAdmin(); 
             });
-
-            // Sync Users
-            onValue(ref(window.db, 'users'), snap => {
-                const data = snap.val();
-                users = data ? Object.entries(data).map(([key, val]) => ({...val, fbKey: key})) : [];
-                updateUserUI();
-                refreshAdmin();
-            });
-
-            // Sync Orders
-            onValue(ref(window.db, 'orders'), snap => {
-                const newOrders = snap.val() ? Object.values(snap.val()) : [];
-                if(newOrders.length > lastKnownOrderCount && audioEnabled) {
-                    notificationSound.play();
-                }
-                allOrders = newOrders;
-                lastKnownOrderCount = allOrders.length;
-                refreshAdmin();
-                updateUserUI();
-            });
-
-            // Sync Status
-            onValue(ref(window.db, 'storeStatus'), snap => {
-                storeStatus = snap.val() ?? true;
-                checkStatus();
-                renderCatalogue();
-                renderCart();
-            });
-
+            onValue(ref(window.db, 'orders'), snap => { allOrders = snap.val() ? Object.values(snap.val()) : []; refreshAdmin(); updateUserUI(); });
+            onValue(ref(window.db, 'storeStatus'), snap => { storeStatus = snap.val() ?? true; checkStatus(); renderCatalogue(); renderCart(); });
             currentUser = JSON.parse(localStorage.getItem('jnr_user_session'));
             initAdminDropzone();
-            updateAudioBtnUI();
-        }, 1500);
+        });
 
-        // FONCTIONS AUDIO
-        function toggleAudio() {
-            audioEnabled = !audioEnabled;
-            localStorage.setItem('admin_audio', audioEnabled);
-            updateAudioBtnUI();
-        }
-
-        function updateAudioBtnUI() {
-            const btn = document.getElementById('toggleAudioBtn');
-            if(btn) btn.innerText = audioEnabled ? "🔊" : "🔇";
-        }
-
-        // NAVIGATION & UI
         function toggleVerifyModal() { document.getElementById('verifyModal').classList.toggle('active'); }
         function toggleCart() { document.getElementById('cartModal').classList.toggle('translate-x-full'); }
-        function toggleFaq(btn) { btn.nextElementSibling.classList.toggle('open'); btn.querySelector('span:last-child').innerText = btn.nextElementSibling.classList.contains('open') ? '−' : '+'; }
+        function toggleFaq(btn) { btn.nextElementSibling.classList.toggle('open'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
+        function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
+        function openAuth() { document.getElementById('authModal').classList.add('active'); }
+        function closeInvoice() { document.getElementById('invoiceModal').classList.remove('active'); }
 
         function checkStatus() {
             const ind = document.getElementById('statusIndicator');
             const btn = document.getElementById('statusBtn');
-            
-            if(storeStatus) {
-                ind.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse mr-2"></span>OUVERT • LIVRAISON EN 45MIN`;
-                if(btn) { btn.innerText = "Boutique Ouverte"; btn.style.background = "#22c55e"; btn.style.color = "black"; }
-            } else {
-                ind.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse mr-2"></span>PRÉ-COMMANDE • OUVERTURE 11H`;
-                if(btn) { btn.innerText = "Mode Pré-commande"; btn.style.background = "#f97316"; btn.style.color = "white"; }
+            ind.innerHTML = storeStatus ? `<span class="bg-green-500 w-2 h-2 rounded-full mr-2"></span>OUVERT` : `<span class="bg-orange-500 w-2 h-2 rounded-full mr-2"></span>PRÉ-COMMANDE`;
+            if(btn) { 
+                btn.innerText = storeStatus ? "BOUTIQUE OUVERTE" : "MODE PRÉ-COMMANDE"; 
+                btn.style.background = storeStatus ? "#22c55e" : "#f97316";
+                btn.style.color = storeStatus ? "#000" : "#fff";
             }
         }
 
-        function toggleStoreStatus() {
-            window.fb.set(window.fb.ref(window.db, 'storeStatus'), !storeStatus);
-        }
+        function toggleStoreStatus() { window.fb.set(window.fb.ref(window.db, 'storeStatus'), !storeStatus); }
 
-        // CATALOGUE
         function renderCatalogue() {
             const cont = document.getElementById('catalogue');
             const q = document.getElementById('searchInput').value.toLowerCase();
-            if(!cont) return;
-            cont.innerHTML = "";
-
-            const filtered = inventory.filter(i => i.name.toLowerCase().includes(q));
-
-            filtered.forEach(item => {
-                const label = storeStatus ? 'Ajouter • 10.00€' : 'Réserver pour 11H';
+            if(!cont) return; cont.innerHTML = "";
+            inventory.filter(i => i.name.toLowerCase().includes(q)).forEach(item => {
                 cont.innerHTML += `
-                    <div class="glass rounded-3xl p-4 text-center group">
-                        <div class="img-container mb-4">
-                            <img src="${item.img}" class="product-card-img group-hover:scale-110">
-                        </div>
-                        <h3 class="text-[9px] font-black uppercase mb-4 h-8 flex items-center justify-center tracking-tighter">${item.name}</h3>
-                        <button onclick="addToCart('${item.id}')" ${item.stock <= 0 ? 'disabled' : ''} class="btn-add-cart ${storeStatus ? '' : 'btn-preorder'} w-full py-3.5 rounded-xl font-black text-[9px] uppercase italic">
-                            ${item.stock > 0 ? label : 'Rupture de stock'}
+                    <div class="glass rounded-3xl p-4 text-center">
+                        <div class="img-container mb-4"><img src="${item.img}" class="product-card-img"></div>
+                        <h3 class="text-[9px] font-black uppercase mb-4">${item.name}</h3>
+                        <button onclick="addToCart('${item.id}')" class="btn-add-cart w-full py-3 rounded-xl text-[9px] font-black uppercase italic">
+                            ${item.stock > 0 ? (storeStatus?'Ajouter • 10€':'Réserver • 10€') : 'Rupture'}
                         </button>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
-        // PANIER
         function addToCart(id) {
-            const item = inventory.find(x => x.id == id);
-            if(item && item.stock > 0) {
-                cart.push(item);
-                updateCartCount();
-                renderCart();
-                toggleCart();
-            }
+            const i = inventory.find(x => x.id == id);
+            if(i && i.stock > 0) { cart.push(i); updateCartCount(); renderCart(); toggleCart(); }
         }
 
-        function updateCartCount() {
-            document.getElementById('cartCount').innerText = cart.length;
-        }
+        function updateCartCount() { document.getElementById('cartCount').innerText = cart.length; }
 
         function renderCart() {
             const container = document.getElementById('cartItems');
             const zone = document.getElementById('uZone').value;
             const pay = document.getElementById('uPay').value;
-            const btn = document.getElementById('btnSendOrder');
-
-            container.innerHTML = cart.length === 0 ? `<div class="text-center py-20 opacity-20 font-black text-[10px] uppercase italic tracking-[0.3em]">Votre panier est vide</div>` : "";
-            
+            container.innerHTML = cart.length === 0 ? `<div class="text-center py-20 opacity-20 text-[10px]">VOTRE PANIER EST VIDE</div>` : "";
             cart.forEach((item, idx) => {
-                container.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 animate-pop-in">
-                        <span class="text-[10px] font-black uppercase italic">${item.name}</span>
-                        <button onclick="removeFromCart(${idx})" class="text-red-500 font-black text-[8px] uppercase tracking-widest">Retirer</button>
-                    </div>
-                `;
+                container.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl text-[9px] font-black uppercase"><span>${item.name}</span><button onclick="cart.splice(${idx},1);renderCart();updateCartCount();" class="text-red-500">RETIRER</button></div>`;
             });
-
             let total = cart.length * 10;
             if(zone === "Agglo") total += 3;
             if(pay === "CB") total += 0.50;
-
             document.getElementById('totalAmount').innerText = total.toFixed(2) + "€";
-            
-            if(storeStatus) {
-                btn.innerText = "⚡ CONFIRMER LA COMMANDE";
-                btn.style.background = "#22c55e";
-            } else {
-                btn.innerText = "🕒 RÉSERVER (OUVERTURE 11H)";
-                btn.style.background = "#f97316";
-            }
+            const btn = document.getElementById('btnSendOrder');
+            btn.innerText = storeStatus ? "⚡ VALIDER MA COMMANDE" : "🕒 RÉSERVER (PROCHAINE TOURNÉE)";
+            btn.style.background = storeStatus ? "#22c55e" : "#f97316";
         }
 
-        function removeFromCart(idx) {
-            cart.splice(idx, 1);
-            updateCartCount();
-            renderCart();
-        }
-
-        // COMMANDE
         function sendOrder() {
-            const street = document.getElementById('uStreet').value;
-            const zip = document.getElementById('uZip').value;
-            const zone = document.getElementById('uZone').value;
-            const pay = document.getElementById('uPay').value;
-
-            if(!street || !zip || cart.length === 0) {
-                alert("Veuillez remplir votre adresse et ajouter des produits.");
-                return;
-            }
-
-            const orderID = Math.random().toString(36).substr(2, 6).toUpperCase();
-            const total = document.getElementById('totalAmount').innerText;
-            const items = cart.map(i => i.name).join(', ');
+            const street = document.getElementById('uStreet').value, zip = document.getElementById('uZip').value;
+            if(!street || !zip || cart.length === 0) return alert("Veuillez remplir votre adresse complète.");
+            const oID = Math.random().toString(36).substr(2, 6).toUpperCase();
+            const total = document.getElementById('totalAmount').innerText, items = cart.map(i => i.name).join(', ');
             const userEmail = currentUser ? currentUser.email : "Client Invité";
 
-            const newOrder = {
-                id: orderID,
-                user: userEmail,
-                items: items,
-                total: total,
-                date: new Date().toLocaleString(),
-                status: storeStatus ? 'pending' : 'preorder',
-                address: `${street}, ${zip} (${zone})`,
-                payMethod: pay
+            // CORRECTIF EMAILJS
+            const templateParams = {
+                to_name: "Admin Uber Jnr",
+                from_name: userEmail,
+                message: `Nouvelle commande de ${items}. Montant: ${total}. Livraison: ${street}, ${zip}`,
+                user_email: userEmail 
             };
+            emailjs.send("service_xsn8p5e", "template_g9wuz9p", templateParams);
 
-            // Sauvegarde Firebase
-            window.fb.set(window.fb.ref(window.db, 'orders/' + orderID), newOrder);
-
-            // Update Points Fidélité
-            if(currentUser) {
-                const targetUser = users.find(u => u.email === currentUser.email);
-                if(targetUser) {
-                    window.fb.update(window.fb.ref(window.db, `users/${targetUser.fbKey}`), {
-                        orders: (targetUser.orders || 0) + cart.length
-                    });
-                }
-            }
-
-            // Update Stocks
-            cart.forEach(c => {
-                window.fb.update(window.fb.ref(window.db, 'inventory/' + c.id), {
-                    stock: c.stock - 1
-                });
-            });
-
-            // WhatsApp Message
-            const type = storeStatus ? "🚀 *NOUVELLE COMMANDE*" : "🕒 *PRÉ-COMMANDE*";
-            const waMsg = `${type}\n--------------------------\n🆔 *COMMANDE:* #${orderID}\n👤 *CLIENT:* ${userEmail}\n📦 *PRODUITS:* ${items}\n📍 *ADRESSE:* ${newOrder.address}\n💳 *PAIEMENT:* ${pay}\n💰 *TOTAL:* ${total}\n--------------------------\n_Veuillez confirmer la réception._`;
+            const order = { id: oID, user: userEmail, items, total, date: new Date().toLocaleString(), status: storeStatus ? 'pending' : 'preorder', address: `${street}, ${zip}` };
+            window.fb.set(window.fb.ref(window.db, 'orders/' + oID), order);
             
-            if(audioEnabled) successSound.play();
+            if(currentUser) {
+                const target = users.find(u => u.email === currentUser.email);
+                if(target) window.fb.update(window.fb.ref(window.db, `users/${target.fbKey}`), { orders: (target.orders || 0) + cart.length });
+            }
+            
+            cart.forEach(c => window.fb.update(window.fb.ref(window.db, 'inventory/' + c.id), { stock: c.stock - 1 }));
+
+            const msg = `*NOUVELLE COMMANDE #${oID}*\n👤 Client: ${userEmail}\n📦 Articles: ${items}\n📍 Adresse: ${street}, ${zip}\n💰 Total: ${total}`;
             document.getElementById('successModal').classList.add('active');
-
-            setTimeout(() => {
-                document.getElementById('successModal').classList.remove('active');
-                showInvoice(newOrder);
-                window.open(`https://wa.me/${MON_WHATSAPP}?text=${encodeURIComponent(waMsg)}`);
-            }, 3000);
-
-            cart = [];
-            updateCartCount();
-            toggleCart();
+            
+            setTimeout(() => { 
+                document.getElementById('successModal').classList.remove('active'); 
+                showInvoice(order);
+                window.open(`https://wa.me/${MON_WHATSAPP}?text=${encodeURIComponent(msg)}`); 
+            }, 2000);
+            
+            cart = []; updateCartCount(); toggleCart();
         }
 
         function showInvoice(o) {
-            document.getElementById('invNum').innerText = "COMMANDE #" + o.id;
-            document.getElementById('invDate').innerText = "DATE: " + o.date;
-            document.getElementById('invUser').innerText = "CLIENT: " + o.user;
-            document.getElementById('invAddr').innerText = "ADR: " + o.address;
-            
-            const tbody = document.getElementById('invItems');
-            tbody.innerHTML = "";
-            cart.forEach(i => {
-                tbody.innerHTML += `<tr class="border-b border-black/5"><td class="py-2">${i.name}</td><td class="text-right">10.00€</td></tr>`;
-            });
-
-            document.getElementById('invTotal').innerText = "TOTAL: " + o.total;
+            document.getElementById('invNum').innerText = "FACTURE #" + o.id;
+            document.getElementById('invDate').innerText = "DATE : " + o.date;
+            document.getElementById('invUser').innerText = "CLIENT : " + o.user;
+            document.getElementById('invAddr').innerText = "ADRESSE : " + o.address;
+            document.getElementById('invItems').innerHTML = o.items.split(', ').map(i => `<tr><td class="py-1">${i}</td><td class="text-right">10.00€</td></tr>`).join('');
+            document.getElementById('invTotal').innerText = "TOTAL : " + o.total;
             document.getElementById('invoiceModal').classList.add('active');
         }
 
-        function closeInvoice() { document.getElementById('invoiceModal').classList.remove('active'); }
-
-        // ADMIN FUNCTIONS
         function handleAdminAuth() {
-            if(localStorage.getItem('admin_logged') === "true") {
-                document.getElementById('adminPanel').classList.remove('hidden');
-            } else {
-                const pass = prompt("Entrez le code administrateur :");
-                if(pass === ADMIN_PASS) {
-                    localStorage.setItem('admin_logged', 'true');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                }
-            }
+            if(prompt("Code d'accès Admin :") === ADMIN_PASS) document.getElementById('adminPanel').classList.remove('hidden');
         }
-
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
 
         function refreshAdmin() {
-            // Liste Clients
-            const uList = document.getElementById('adminUserList');
-            if(uList) {
-                uList.innerHTML = "";
-                users.forEach(u => {
-                    uList.innerHTML += `
-                        <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[9px] uppercase font-black">
-                            <span>${u.email} <span class="text-green-500 ml-2">(${u.orders || 0} pts)</span></span>
-                            <button onclick="deleteUser('${u.fbKey}')" class="text-red-500 hover:scale-110 transition-transform">🗑️</button>
-                        </div>
-                    `;
-                });
-            }
+            const uList = document.getElementById('adminUserList'); if(uList) uList.innerHTML = "";
+            users.forEach(u => { uList.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[9px] uppercase font-black"><span>${u.email} (${u.orders||0})</span><button onclick="window.fb.remove(window.fb.ref(window.db, 'users/${u.fbKey}'))" class="text-red-500">SUPPR</button></div>`; });
+            
+            const oList = document.getElementById('adminOrdersDisplay'); if(oList) oList.innerHTML = "";
+            allOrders.slice().reverse().slice(0, 10).forEach(o => { 
+                oList.innerHTML += `<div class="bg-white/5 p-4 rounded-xl flex justify-between text-[9px] font-black uppercase"><div><p class="text-green-500">#${o.id} - ${o.user}</p><p class="opacity-50">${o.items}</p></div><button onclick="window.fb.remove(window.fb.ref(window.db, 'orders/${o.id}'))" class="text-red-500">X</button></div>`; 
+            });
 
-            // Liste Commandes
-            const oList = document.getElementById('adminOrdersDisplay');
-            if(oList) {
-                oList.innerHTML = "";
-                allOrders.slice().reverse().forEach(o => {
-                    oList.innerHTML += `
-                        <div class="bg-white/5 p-5 rounded-2xl flex flex-col md:flex-row justify-between gap-4 text-[9px] font-black uppercase">
-                            <div>
-                                <p class="text-green-500 mb-1">#${o.id} - ${o.total}</p>
-                                <p class="opacity-40 mb-2">${o.date}</p>
-                                <p>${o.items}</p>
-                                <p class="opacity-60 mt-1">${o.address}</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-black border border-white/10 p-2 rounded-lg text-[8px]">
-                                    <option value="pending" ${o.status==='pending'?'selected':''}>ATTENTE</option>
-                                    <option value="prep" ${o.status==='prep'?'selected':''}>PRÉPARATION</option>
-                                    <option value="delivery" ${o.status==='delivery'?'selected':''}>EN LIVRAISON</option>
-                                    <option value="done" ${o.status==='done'?'selected':''}>LIVRÉE</option>
-                                    <option value="preorder" ${o.status==='preorder'?'selected':''}>PRÉ-CO</option>
-                                </select>
-                                <button onclick="deleteOrder('${o.id}')" class="bg-red-500/10 text-red-500 p-2 rounded-lg">SUPPR</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            // Liste Stock
-            const sList = document.getElementById('adminStockList');
-            if(sList) {
-                sList.innerHTML = "";
-                inventory.forEach(i => {
-                    sList.innerHTML += `
-                        <div class="glass p-3 rounded-2xl text-center space-y-2">
-                            <img src="${i.img}" class="w-10 h-10 object-cover mx-auto rounded-lg">
-                            <p class="text-[7px] font-black uppercase truncate">${i.name}</p>
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="changeStock('${i.id}', -1)" class="w-6 h-6 bg-white/5 rounded-md">-</button>
-                                <span class="text-[10px] text-green-500">${i.stock}</span>
-                                <button onclick="changeStock('${i.id}', 1)" class="w-6 h-6 bg-white/5 rounded-md">+</button>
-                            </div>
-                            <button onclick="deleteProduct('${i.id}')" class="text-[7px] text-red-500/40 uppercase">Supprimer</button>
-                        </div>
-                    `;
-                });
-            }
+            const sList = document.getElementById('adminStockList'); if(sList) sList.innerHTML = "";
+            inventory.forEach(i => { sList.innerHTML += `<div class="glass p-2 text-center rounded-xl"><img src="${i.img}" class="w-8 h-8 mx-auto mb-1"><p class="text-[7px] font-black">${i.name}</p><p class="text-green-500 text-[9px]">${i.stock} EN STOCK</p></div>`; });
         }
 
-        function deleteUser(key) { if(confirm("Supprimer ce client ? Ses points seront perdus.")) window.fb.remove(window.fb.ref(window.db, 'users/' + key)); }
-        function deleteOrder(id) { if(confirm("Supprimer l'historique de cette commande ?")) window.fb.remove(window.fb.ref(window.db, 'orders/' + id)); }
-        function deleteProduct(id) { if(confirm("Supprimer ce goût du catalogue ?")) window.fb.remove(window.fb.ref(window.db, 'inventory/' + id)); }
-        function changeStock(id, val) { const item = inventory.find(x => x.id == id); if(item) window.fb.update(window.fb.ref(window.db, 'inventory/' + id), { stock: item.stock + val }); }
-        function updateOrderStatus(id, status) { window.fb.update(window.fb.ref(window.db, 'orders/' + id), { status: status }); }
-
-        // AUTH & FIDELITÉ
-        function openAuth() { document.getElementById('authModal').classList.add('active'); }
-        function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
-
         function handleRegister() {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPass').value;
-            if(!email.includes('@') || pass.length < 4) return alert("Email ou mot de passe invalide.");
-            
-            const safeKey = btoa(email).replace(/=/g, "");
-            window.fb.set(window.fb.ref(window.db, 'users/' + safeKey), {
-                email: email,
-                pass: pass,
-                orders: 0
-            });
-            alert("Compte fidélité créé ! Connectez-vous.");
+            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
+            if(!e || !p) return alert("Veuillez remplir tous les champs.");
+            const key = btoa(e).replace(/=/g, "");
+            window.fb.set(window.fb.ref(window.db, 'users/' + key), { email: e, pass: p, orders: 0 });
+            alert("Profil créé avec succès !");
         }
 
         function handleLogin() {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPass').value;
-            const user = users.find(u => u.email === email && u.pass === pass);
-            
-            if(user) {
-                currentUser = user;
-                localStorage.setItem('jnr_user_session', JSON.stringify(user));
-                updateUserUI();
-                closeAuth();
-            } else {
-                alert("Identifiants incorrects.");
-            }
-        }
-
-        function handleLogout() {
-            localStorage.removeItem('jnr_user_session');
-            location.reload();
+            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
+            const user = users.find(u => u.email === e && u.pass === p);
+            if(user) { currentUser = user; localStorage.setItem('jnr_user_session', JSON.stringify(user)); updateUserUI(); closeAuth(); } 
+            else alert("Identifiants incorrects.");
         }
 
         function updateUserUI() {
-            if(!currentUser) return;
-            const freshUser = users.find(u => u.email === currentUser.email) || currentUser;
-            
-            document.getElementById('userBtn').innerText = freshUser.email.split('@')[0].toUpperCase();
+            if(!currentUser) {
+                document.getElementById('userBtn').innerText = "S'IDENTIFIER";
+                document.getElementById('authForms').classList.remove('hidden');
+                document.getElementById('profileContent').classList.add('hidden');
+                return;
+            }
+            const fresh = users.find(u => u.email === currentUser.email) || currentUser;
+            const nbOrders = fresh.orders || 0;
+            const pts = nbOrders % 10;
+            const remain = 10 - pts;
+
+            document.getElementById('userBtn').innerText = fresh.email.split('@')[0].toUpperCase();
             document.getElementById('authForms').classList.add('hidden');
             document.getElementById('profileContent').classList.remove('hidden');
-            document.getElementById('profileName').innerText = freshUser.email;
             
-            const bar = document.getElementById('loyaltyBar');
-            bar.innerHTML = "";
-            const pts = freshUser.orders || 0;
-            const progress = pts % 10;
+            // TEXTE DE FIDÉLITÉ
+            document.getElementById('profileTextHeader').innerHTML = `
+                <h2 class="text-lg font-900 text-green-500 uppercase italic text-center">${fresh.email}</h2>
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-widest">Points Fidélité</p>
+                    <p class="text-xl font-900 italic text-green-500">${pts} / 10</p>
+                    <p class="text-[8px] opacity-60 font-bold uppercase">
+                        ${remain === 0 || (nbOrders > 0 && pts === 0) ? "PROCHAINE PUFF OFFERTE ! 🎉" : "PLUS QUE " + remain + " COMMANDES AVANT LA GRATUITE !"}
+                    </p>
+                </div>
+            `;
             
-            for(let i=0; i<10; i++) {
-                bar.innerHTML += `<div class="loyalty-dot ${i < progress ? 'active' : ''}"></div>`;
+            // POINTS VERTS
+            const bar = document.getElementById('loyaltyBar'); 
+            if(bar) {
+                bar.innerHTML = "";
+                for(let i=0; i<10; i++) bar.innerHTML += `<div class="loyalty-dot ${i < pts ? 'active' : ''}"></div>`;
             }
-            
-            document.getElementById('loyaltyStatus').innerText = (10 - progress) + " PUFFS";
-            
-            const uOrdersList = document.getElementById('userOrdersList');
-            uOrdersList.innerHTML = "";
-            allOrders.filter(o => o.user === freshUser.email).slice(-5).reverse().forEach(o => {
-                uOrdersList.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[8px] font-black uppercase"><span>#${o.id}</span><span class="status-badge ${o.status==='done'?'status-done':'status-pending'}">${o.status}</span></div>`;
-            });
+
+            // HISTORIQUE PERSONNEL
+            const hList = document.getElementById('userOrdersList');
+            if(hList) {
+                const myOrders = allOrders.filter(o => o.user === fresh.email).reverse();
+                hList.innerHTML = myOrders.length === 0 ? `<p class="text-[8px] opacity-30 text-center py-4 uppercase">Aucune commande passée</p>` : "";
+                myOrders.forEach(o => {
+                    hList.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[8px] font-bold uppercase"><div class="flex flex-col"><span>#${o.id}</span><span class="opacity-40 text-[7px]">${o.date}</span></div><span class="text-green-500">${o.total}</span></div>`;
+                });
+            }
         }
 
-        // DROPZONE & ADD PRODUCT
+        function handleLogout() { localStorage.removeItem('jnr_user_session'); location.reload(); }
+
         function initAdminDropzone() {
-            const fi = document.getElementById('fileInput');
-            const prev = document.getElementById('preview');
-            fi.onchange = (e) => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    tempImageData = ev.target.result;
-                    prev.src = tempImageData;
-                    prev.classList.remove('hidden');
-                };
-                reader.readAsDataURL(e.target.files[0]);
+            const fi = document.getElementById('fileInput'), prev = document.getElementById('preview');
+            if(!fi) return;
+            fi.onchange = (e) => { 
+                const reader = new FileReader(); 
+                reader.onload = (ev) => { 
+                    tempImageData = ev.target.result; 
+                    prev.src = tempImageData; 
+                    prev.classList.remove('hidden'); 
+                }; 
+                reader.readAsDataURL(e.target.files[0]); 
             };
         }
 
         async function addNewProductAdmin() {
-            const name = document.getElementById('newProdName').value;
-            const stock = parseInt(document.getElementById('newProdStock').value);
-            if(!name || isNaN(stock) || !tempImageData) return alert("Remplissez tout !");
-            
+            const n = document.getElementById('newProdName').value, s = parseInt(document.getElementById('newProdStock').value);
+            if(!n || isNaN(s) || !tempImageData) return alert("Veuillez remplir le nom, le stock et ajouter une image.");
             const id = Date.now().toString();
-            await window.fb.set(window.fb.ref(window.db, 'inventory/' + id), {
-                id: id,
-                name: name.toUpperCase(),
-                stock: stock,
-                img: tempImageData
-            });
-            
+            await window.fb.set(window.fb.ref(window.db, 'inventory/' + id), { id, name: n.toUpperCase(), stock: s, img: tempImageData });
+            alert("Goût ajouté au catalogue !");
             document.getElementById('newProdName').value = "";
             document.getElementById('newProdStock').value = "";
             document.getElementById('preview').classList.add('hidden');
-            tempImageData = "";
-            alert("Goût ajouté !");
         }
     </script>
 </body>
