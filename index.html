@@ -7,11 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDNAAwvuIxB_7nv8y_E9lXjbPoZNUH3gvE",
@@ -25,12 +26,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
         window.db = db;
-        window.fb = { ref, set, onValue, update, remove };
-        
+        window.fb = { ref, set, onValue, update, remove, push };
         window.dispatchEvent(new Event('firebase-ready'));
-        
         emailjs.init("s8K2wPwkBJHNJVlO5"); 
     </script>
 
@@ -57,21 +55,66 @@
             -webkit-tap-highlight-color: transparent;
             display: flex;
             flex-direction: column;
-            cursor: default;
         }
 
-        main {
-            flex: 1 0 auto;
+        /* --- SPLASH SCREEN DETAILED --- */
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
         }
 
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-dark { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .splash-logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            font-style: italic;
+            letter-spacing: -2px;
+            animation: pulse-logo 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+        }
+
+        .loader-bar {
+            width: 140px;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+            margin-top: 25px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+
+        .loader-progress {
+            position: absolute;
+            height: 100%;
+            width: 45%;
+            background: var(--u-green);
+            animation: loader-slide 1.5s infinite ease-in-out;
+        }
+
+        @keyframes loader-slide {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+
+        /* --- UI COMPONENTS --- */
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-dark { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
         
         .promo-container {
             background: var(--u-green);
             overflow: hidden;
             width: 100%;
-            padding: 12px 0;
+            padding: 14px 0;
             position: fixed;
             top: 0;
             z-index: 9999;
@@ -81,7 +124,7 @@
         .promo-wrapper {
             display: flex;
             white-space: nowrap;
-            animation: marquee-infinite 30s linear infinite;
+            animation: marquee-infinite 40s linear infinite;
         }
 
         .promo-text {
@@ -90,7 +133,7 @@
             text-transform: uppercase;
             color: #000;
             font-style: italic;
-            padding-right: 60px;
+            padding-right: 80px;
         }
 
         @keyframes marquee-infinite {
@@ -99,43 +142,21 @@
         }
 
         .hero-title {
-            font-size: clamp(3rem, 12vw, 8rem);
-            line-height: 0.8;
+            font-size: clamp(3.5rem, 15vw, 9rem);
+            line-height: 0.75;
             font-weight: 800;
             font-style: italic;
             text-transform: uppercase;
-        }
-
-        .btn-add-cart {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--u-green);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .btn-add-cart:hover:not(:disabled) {
-            background: var(--u-green);
-            color: #000;
-            transform: translateY(-3px);
-        }
-
-        .btn-preorder {
-            color: var(--u-orange) !important;
-            border-color: rgba(249, 115, 22, 0.3) !important;
-        }
-
-        .btn-preorder:hover {
-            background: var(--u-orange) !important;
-            color: #000 !important;
+            letter-spacing: -4px;
         }
 
         .img-container {
             width: 100%;
             aspect-ratio: 1/1;
-            background: #0a0a0a;
-            border-radius: 24px;
+            background: radial-gradient(circle, #111 0%, #000 100%);
+            border-radius: 30px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             position: relative;
         }
 
@@ -143,24 +164,29 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .product-card:hover .product-card-img {
+            transform: scale(1.1) rotate(2deg);
         }
 
         .address-input {
             width: 100%;
-            background: #0a0a0a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px;
-            border-radius: 16px;
+            background: #080808;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            border-radius: 18px;
             color: white;
             outline: none;
             font-size: 14px;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .address-input:focus {
             border-color: var(--u-green);
-            background: #111;
+            background: #0f0f0f;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
         }
 
         .modal {
@@ -168,583 +194,638 @@
             position: fixed;
             inset: 0;
             z-index: 15000;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.98);
+            backdrop-filter: blur(20px);
             align-items: center;
             justify-content: center;
-            padding: 15px;
+            padding: 20px;
         }
+        .modal.active { display: flex; animation: fadeIn 0.4s ease; }
 
-        .modal.active {
-            display: flex;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .loyalty-dot {
-            height: 6px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.5s ease;
+            height: 8px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
-
         .loyalty-dot.active {
             background: var(--u-green);
-            box-shadow: 0 0 10px var(--u-green);
+            box-shadow: 0 0 15px var(--u-green);
+            transform: scaleY(1.2);
         }
 
         .faq-ans {
             overflow: hidden;
             max-height: 0;
-            transition: max-height 0.4s ease-out, padding 0.4s;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0;
         }
-
         .faq-ans.open {
-            max-height: 250px;
-            padding: 15px;
-            opacity: 0.7;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 500px;
+            padding: 20px;
+            opacity: 0.6;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        .invoice-box {
-            background: white;
-            color: black;
-            padding: 25px;
-            border-radius: 10px;
+        .chart-container {
+            position: relative;
+            height: 280px;
             width: 100%;
-            max-width: 450px;
-            font-family: 'Courier New', Courier, monospace;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: rgba(255,255,255,0.01);
+            border-radius: 32px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.04);
         }
 
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 8px;
-            font-weight: 900;
-            text-transform: uppercase;
+        .btn-add-cart {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--u-green);
+            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
         }
-
-        .status-pending { background: #555; color: white; }
-        .status-prep { background: var(--u-orange); color: white; }
-        .status-delivery { background: var(--u-blue); color: white; }
-        .status-done { background: var(--u-green); color: black; }
-
-        .check-container {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+        .btn-add-cart:hover:not(:disabled) {
             background: var(--u-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #000;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
         }
 
-        @keyframes pop-in {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-
-        .check-mark {
-            width: 40px;
-            height: 20px;
-            border-left: 5px solid black;
-            border-bottom: 5px solid black;
-            transform: rotate(-45deg);
-            margin-top: -5px;
-        }
-
-        .help-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #25d366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
-            z-index: 10000;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .btn-social {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 9px;
+        .badge-vip {
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            color: black;
+            font-size: 7px;
             font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
             text-transform: uppercase;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            transition: 0.3s;
-        }
-
-        .btn-social:hover {
-            background: rgba(255, 255, 255, 0.1);
         }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="bg-black">
+
+    <div id="splash">
+        <div class="splash-logo">UBER<span class="text-green-500">JNR</span></div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+        <p class="text-[9px] font-black uppercase opacity-20 tracking-[0.4em] mt-10">Premium Experience Loading...</p>
+    </div>
 
     <div class="promo-container">
         <div class="promo-wrapper">
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
-            <div class="promo-text">9 JNR ACHETÉES = LA 10ÈME OFFERTE 🔥 LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
+            <div class="promo-text">🔥 9 JNR ACHETÉES = LA 10ÈME OFFERTE • LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
+            <div class="promo-text">🔥 9 JNR ACHETÉES = LA 10ÈME OFFERTE • LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
+            <div class="promo-text">🔥 9 JNR ACHETÉES = LA 10ÈME OFFERTE • LIVRAISON EXPRESS TROYES & AGGLO 📦</div>
         </div>
     </div>
 
-    <header class="fixed top-[40px] left-0 right-0 z-[9000] p-3 md:p-4">
-        <nav class="glass max-w-7xl mx-auto rounded-2xl px-4 md:px-6 py-3 flex justify-between items-center">
-            <div class="text-lg md:text-2xl font-800 italic tracking-tighter">
-                UBER<span class="text-green-500">JNR</span>
-            </div>
-            <div class="flex items-center gap-2 md:gap-3">
-                <button onclick="openAuth()" id="userBtn" class="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-[8px] md:text-[9px] font-black text-green-500 uppercase tracking-widest">
-                    S'IDENTIFIER
+    <header class="fixed top-[45px] left-0 right-0 z-[9000] p-4">
+        <nav class="glass max-w-7xl mx-auto rounded-[24px] px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-800 italic tracking-tighter">UBER<span class="text-green-500">JNR</span></div>
+            <div class="flex items-center gap-4">
+                <button onclick="openAuth()" id="userBtn" class="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-[10px] font-black text-green-500 uppercase tracking-widest">ESPACE CLIENT</button>
+                <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-full border border-white/10 transition-transform active:scale-90">
+                    🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-green-500 text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold text-black border-2 border-black">0</span>
                 </button>
-                <button onclick="toggleCart()" class="relative bg-white/5 p-2 md:p-3 rounded-full border border-white/10">
-                    🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-green-500 text-[10px] w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full font-bold text-black">0</span>
-                </button>
-                <button onclick="handleAdminAuth()" class="opacity-10 hover:opacity-100 transition-opacity ml-1 text-xs">⚙️</button>
+                <button onclick="handleAdminAuth()" class="opacity-10 hover:opacity-100 transition-opacity p-2">⚙️</button>
             </div>
         </nav>
     </header>
 
-    <main>
-        <section class="pt-48 md:pt-64 pb-12 text-center px-4">
-            <div id="statusIndicator" class="inline-flex items-center px-4 py-2 rounded-full border border-white/10 glass mb-6 md:mb-10 text-[9px] font-black uppercase tracking-widest">
-            </div>
-            <h1 class="hero-title">
-                <span>UBER</span><br>
-                <span class="text-green-500">JNR</span>
-            </h1>
-            <p class="text-[9px] md:text-xs font-900 tracking-[0.3em] md:tracking-[0.5em] uppercase italic opacity-40 mt-8 mb-10">
-                PREMIUM VAPES • TROYES & AGGLO
-            </p>
+    <main class="flex-grow">
+        <section class="pt-56 md:pt-72 pb-20 text-center px-6">
+            <div id="statusIndicator" class="inline-flex items-center px-6 py-2.5 rounded-full border border-white/10 glass mb-12 text-[10px] font-black uppercase tracking-[0.2em]"></div>
+            <h1 class="hero-title"><span>UBER</span><br><span class="text-green-500">JNR</span></h1>
+            <p class="text-[10px] md:text-xs font-900 tracking-[0.6em] uppercase italic opacity-30 mt-12 mb-16">L'excellence de la Vape • Livraison 7j/7</p>
             
-            <div class="max-w-xl mx-auto">
-                <input type="text" id="searchInput" oninput="renderCatalogue()" placeholder="RECHERCHER UN GOÛT..." class="w-full bg-white/5 border border-white/10 p-4 md:p-5 rounded-2xl text-center uppercase font-bold text-xs focus:border-green-500 outline-none transition-all">
+            <div class="max-w-2xl mx-auto px-4">
+                <div class="relative group">
+                    <input type="text" id="searchInput" oninput="renderCatalogue()" placeholder="RECHERCHER VOTRE GOÛT PRÉFÉRÉ..." class="w-full bg-white/5 border border-white/10 p-6 rounded-[24px] text-center uppercase font-bold text-[11px] focus:border-green-500 outline-none transition-all placeholder:opacity-30">
+                    <div class="absolute inset-0 rounded-[24px] bg-green-500/5 blur-xl -z-10 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                </div>
             </div>
         </section>
 
-        <section id="catalogue" class="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8 pb-24 md:pb-32">
-        </section>
+        <section id="catalogue" class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 pb-32"></section>
 
-        <section class="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24 border-t border-white/5">
-            <h2 class="text-2xl md:text-3xl font-900 italic uppercase text-center mb-10 md:mb-16">
-                FAQ <span class="text-green-500">AIDE</span>
-            </h2>
-            <div class="space-y-3">
-                <div class="glass rounded-2xl overflow-hidden">
-                    <button onclick="toggleFaq(this)" class="w-full p-5 text-left flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase">Comment payer ma commande ?</span>
-                        <span class="text-green-500">+</span>
+        <section class="max-w-5xl mx-auto px-6 py-24 border-t border-white/5">
+            <h2 class="text-3xl font-900 italic uppercase text-center mb-20 tracking-tighter">QUESTIONS <span class="text-green-500">FRÉQUENTES</span></h2>
+            <div class="space-y-4">
+                <div class="glass rounded-[28px] overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full p-7 text-left flex justify-between items-center group">
+                        <span class="text-[11px] font-black uppercase tracking-widest group-hover:text-green-500 transition-colors">Comment fonctionne la livraison ?</span>
+                        <span class="text-green-500 text-2xl">+</span>
                     </button>
-                    <div class="faq-ans text-[10px] uppercase">
-                        Le paiement se fait soit en espèces, soit par carte bleue directement auprès du livreur à son arrivée (+0.50€ de frais pour la CB).
+                    <div class="faq-ans text-[11px] font-bold uppercase leading-relaxed">
+                        Nous livrons sur Troyes et toute l'agglomération en moins de 45 minutes. Une fois la commande passée sur WhatsApp, un livreur vous contacte instantanément.
                     </div>
                 </div>
-                <div class="glass rounded-2xl overflow-hidden">
-                    <button onclick="toggleFaq(this)" class="w-full p-5 text-left flex justify-between items-center">
-                        <span class="text-[10px] font-black uppercase">Quels sont les délais de livraison ?</span>
-                        <span class="text-green-500">+</span>
+                <div class="glass rounded-[28px] overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full p-7 text-left flex justify-between items-center group">
+                        <span class="text-[11px] font-black uppercase tracking-widest group-hover:text-green-500 transition-colors">La 10ème Puff est-elle vraiment gratuite ?</span>
+                        <span class="text-green-500 text-2xl">+</span>
                     </button>
-                    <div class="faq-ans text-[10px] uppercase">
-                        Nous livrons en moyenne entre 30 et 45 minutes selon votre localisation.
+                    <div class="faq-ans text-[11px] font-bold uppercase leading-relaxed">
+                        Oui ! Chaque achat est enregistré sur votre compte. Dès que vous atteignez 9 Puffs cumulées, la 10ème est offerte lors de votre prochaine commande.
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="glass-dark border-t border-white/10 pt-16 pb-10 px-6">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left">
-            <div>
-                <div class="text-xl font-800 italic mb-4 uppercase">UBER<span class="text-green-500">JNR</span></div>
-                <p class="text-[9px] font-bold opacity-30 uppercase leading-loose">
-                    Le service numéro 1 de livraison de Puffs premium à Troyes. Qualité garantie.
-                </p>
+    <footer class="glass-dark border-t border-white/10 pt-20 pb-12 px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div class="text-center md:text-left">
+                <div class="text-2xl font-800 italic mb-6">UBER<span class="text-green-500">JNR</span></div>
+                <p class="text-[10px] font-black uppercase opacity-20 leading-loose tracking-[0.2em]">Service de livraison premium spécialisé dans les Puffs JNR. Qualité et rapidité garanties sur Troyes.</p>
             </div>
-            <div class="flex flex-col gap-3">
-                <h4 class="text-[9px] font-black uppercase text-green-500 tracking-widest">Réseaux Sociaux</h4>
-                <div class="flex gap-2">
-                    <a href="https://instagram.com/uber.jnr10" target="_blank" class="btn-social">📸 INSTAGRAM</a>
-                    <a href="https://snapchat.com/add/uberrjnrr10" target="_blank" class="btn-social">👻 SNAPCHAT</a>
+            <div class="flex flex-col items-center gap-6">
+                <p class="text-[9px] font-black opacity-40 uppercase tracking-widest">Réseaux Sociaux</p>
+                <div class="flex gap-4 w-full">
+                    <a href="https://instagram.com/uber.jnr10" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-center text-[10px] font-black uppercase hover:bg-white/10 transition-all">Instagram</a>
+                    <a href="https://snapchat.com/add/uberrjnrr10" class="flex-1 bg-white/5 border border-white/10 py-4 rounded-2xl text-center text-[10px] font-black uppercase hover:bg-white/10 transition-all">Snapchat</a>
                 </div>
             </div>
-            <div class="flex flex-col items-center md:items-end gap-3">
-                <h4 class="text-[9px] font-black uppercase text-green-500 tracking-widest">Authenticité</h4>
-                <button onclick="toggleVerifyModal()" class="bg-green-500 text-black px-6 py-3 rounded-xl font-900 text-[10px] uppercase italic">
-                    💎 VÉRIFIER MON PRODUIT
-                </button>
+            <div class="text-center md:text-right flex flex-col justify-end">
+                <p class="text-[9px] font-black opacity-20 uppercase tracking-[0.3em]">© 2024 Uber Jnr Luxury Corp.</p>
             </div>
         </div>
     </footer>
 
-    <div id="verifyModal" class="modal">
-        <div class="glass p-8 rounded-[2.5rem] max-w-md w-full relative">
-            <button onclick="toggleVerifyModal()" class="absolute top-6 right-6 text-3xl opacity-20">&times;</button>
-            <h2 class="text-2xl font-900 uppercase italic text-center mb-6 text-green-500">AUTHENTICITÉ</h2>
-            <a href="https://www.jnrvape.com/verify-product" target="_blank" class="block w-full bg-white text-black py-4 rounded-xl text-center font-900 tracking-widest">PORTAIL OFFICIEL JNR</a>
+    <div id="cartModal" class="fixed inset-y-0 right-0 w-full md:w-[500px] bg-black z-[20000] transform translate-x-full transition-transform duration-600 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col border-l border-white/10">
+        <div class="p-8 flex justify-between items-center border-b border-white/5">
+            <h2 class="text-2xl font-900 italic uppercase tracking-tighter">Votre Panier</h2>
+            <button onclick="toggleCart()" class="text-4xl text-white/20 hover:text-white transition-colors">&times;</button>
         </div>
-    </div>
-
-    <a href="https://wa.me/33785141135" class="help-btn" target="_blank">💬</a>
-
-    <div id="successModal" class="modal">
-        <div class="glass p-10 rounded-[3rem] text-center max-w-sm w-full">
-            <div class="check-container"><div class="check-mark"></div></div>
-            <h2 class="text-2xl font-900 italic uppercase mb-4 text-green-500">COMMANDE REÇUE !</h2>
-        </div>
-    </div>
-
-    <div id="cartModal" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-black z-[20000] transform translate-x-full transition-transform duration-500 flex flex-col border-l border-white/10">
-        <div class="p-6 flex justify-between items-center border-b border-white/5"><h2 class="text-xl font-900 italic uppercase">Panier</h2><button onclick="toggleCart()" class="text-3xl">&times;</button></div>
-        <div id="cartItems" class="flex-grow p-6 overflow-y-auto space-y-4"></div>
-        <div class="p-6 bg-[#050505] border-t border-white/5 space-y-3">
-            <div class="flex justify-between items-end mb-2"><span id="totalAmount" class="text-3xl font-900 text-green-500 italic">0€</span></div>
-            <input type="text" id="uStreet" placeholder="RUE" class="address-input uppercase">
-            <input type="text" id="uZip" placeholder="CODE POSTAL" class="address-input uppercase">
-            <div class="grid grid-cols-2 gap-3">
-                <select id="uZone" onchange="renderCart()" class="address-input uppercase"><option value="Troyes">Troyes</option><option value="Agglo">Agglo</option></select>
-                <select id="uPay" onchange="renderCart()" class="address-input uppercase"><option value="Espèces">Espèces</option><option value="CB">CB</option></select>
+        
+        <div id="cartItems" class="flex-grow p-8 overflow-y-auto space-y-6"></div>
+        
+        <div class="p-8 bg-[#030303] border-t border-white/5 space-y-5">
+            <div id="packNotice" class="hidden text-center bg-green-500/10 text-green-500 text-[10px] font-black py-4 rounded-2xl uppercase italic border border-green-500/20">Remise exceptionnelle appliquée (-3€) ⚡</div>
+            
+            <div class="flex justify-between items-end pb-4">
+                <span class="text-[11px] font-black uppercase opacity-30 tracking-widest">Total de la commande</span>
+                <span id="totalAmount" class="text-4xl font-900 text-green-500 italic tracking-tighter">0€</span>
             </div>
-            <button onclick="sendOrder()" id="btnSendOrder" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic mt-4"></button>
+
+            <div class="space-y-3">
+                <input type="text" id="uStreet" placeholder="ADRESSE DE LIVRAISON (RUE, NUMÉRO)" class="address-input uppercase">
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="uZone" onchange="renderCart()" class="address-input appearance-none uppercase">
+                        <option value="Troyes">Troyes (0€)</option>
+                        <option value="Agglo">Agglo (+3€)</option>
+                    </select>
+                    <select id="uPay" onchange="renderCart()" class="address-input appearance-none uppercase">
+                        <option value="Espèces">Espèces</option>
+                        <option value="CB">Carte Bancaire (+0.50€)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="sendOrder()" class="w-full bg-green-500 text-black py-6 rounded-[22px] font-900 uppercase italic tracking-tighter hover:bg-green-400 transition-all shadow-2xl shadow-green-500/20 active:scale-95">Commander sur WhatsApp</button>
         </div>
     </div>
 
-    <div id="invoiceModal" class="modal">
-        <div class="invoice-box relative shadow-2xl">
-            <button onclick="closeInvoice()" class="absolute top-4 right-4 text-black font-bold text-xs">[FERMER]</button>
-            <div class="text-center border-b-2 border-black pb-4 mb-4"><h2 class="text-xl font-black italic">UBER JNR</h2><p id="invNum" class="text-[10px] font-bold uppercase"></p></div>
-            <div class="py-4 text-[10px] space-y-1 font-bold border-b border-black/10"><p id="invDate"></p><p id="invUser"></p><p id="invAddr" class="uppercase"></p></div>
-            <table class="w-full text-[10px] mb-6 mt-4"><thead><tr class="border-b border-black"><th class="text-left pb-2">PRODUIT</th><th class="text-right pb-2">PRIX</th></tr></thead><tbody id="invItems" class="font-bold uppercase"></tbody></table>
-            <div class="border-t-2 border-black pt-4 font-black text-right text-lg italic" id="invTotal"></div>
+    <div id="adminPanel" class="fixed inset-0 z-[30000] bg-black overflow-y-auto hidden p-6 md:p-12">
+        <div class="max-w-7xl mx-auto space-y-10 pb-32">
+            <div class="flex justify-between items-center border-b border-white/10 pb-8">
+                <h2 class="text-3xl font-900 text-green-500 uppercase italic tracking-tighter">Console de Gestion</h2>
+                <button onclick="closeAdmin()" class="text-5xl text-white/10 hover:text-white transition-all">&times;</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="analytics-card"><p class="text-[10px] opacity-40 font-black mb-2 uppercase">Chiffre d'Affaires</p><h4 id="statCA" class="text-4xl font-900 text-green-500 italic">0€</h4></div>
+                <div class="analytics-card"><p class="text-[10px] opacity-40 font-black mb-2 uppercase">Bénéfices Estimés</p><h4 id="statBenef" class="text-4xl font-900 text-blue-500 italic">0€</h4></div>
+                <div class="analytics-card"><p class="text-[10px] opacity-40 font-black mb-2 uppercase">Total Puffs</p><h4 id="statVentes" class="text-4xl font-900 text-orange-500 italic">0</h4></div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="glass p-8 rounded-[35px] space-y-6">
+                    <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">➕ Nouveau Goût</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="newProdName" placeholder="NOM DU GOÛT (EX: TRIPLE MANGO)" class="address-input uppercase">
+                        <input type="text" id="newProdImg" placeholder="LIEN DE L'IMAGE" class="address-input">
+                        <input type="number" id="newProdStock" placeholder="QUANTITÉ EN STOCK" class="address-input">
+                        <button onclick="addNewProduct()" class="w-full bg-green-500 text-black py-5 rounded-2xl font-black uppercase text-[11px]">Ajouter au Catalogue</button>
+                    </div>
+                </div>
+
+                <div class="glass p-8 rounded-[35px] space-y-6">
+                    <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">📢 Broadcast Marketing</h3>
+                    <textarea id="broadcastMsg" placeholder="ÉCRIVEZ VOTRE OFFRE ICI..." class="address-input h-32 resize-none uppercase text-[11px]"></textarea>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="sendBroadcast('snap')" class="bg-yellow-400 text-black py-5 rounded-2xl font-black uppercase text-[10px]">Copier Snapchat</button>
+                        <button onclick="sendBroadcast('wa')" class="bg-green-500 text-black py-5 rounded-2xl font-black uppercase text-[10px]">Lien WhatsApp</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-[35px] space-y-6">
+                <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">📦 Gestion du Catalogue Actuel</h3>
+                <div id="adminStockList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <div class="glass p-8 rounded-[35px] space-y-6">
+                <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">👑 Top Clients VIP</h3>
+                <div id="topClientsList" class="space-y-4"></div>
+            </div>
+
+            <div class="glass p-8 rounded-[35px] space-y-8 text-center">
+                <div class="flex flex-col items-center gap-4">
+                    <p class="text-[10px] font-black uppercase opacity-30">Contrôle du Site</p>
+                    <button onclick="toggleStoreStatus()" id="statusBtn" class="w-full max-w-md py-6 rounded-2xl font-black uppercase tracking-widest transition-all"></button>
+                </div>
+                <div class="border-t border-white/5 pt-8">
+                    <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em] mb-6">Historique des 15 dernières commandes</h3>
+                    <div id="adminOrdersDisplay" class="space-y-3"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="authModal" class="modal">
-        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] relative">
-            <button onclick="closeAuth()" class="absolute top-6 right-6 text-3xl opacity-20">&times;</button>
+        <div class="max-w-md w-full glass p-10 rounded-[45px] relative">
+            <button onclick="closeAuth()" class="absolute top-8 right-8 text-3xl opacity-20 hover:opacity-100 transition-opacity">&times;</button>
             
-            <div id="profileContent" class="hidden space-y-6">
-                <div id="profileTextHeader" class="space-y-4">
-                    </div>
+            <div id="profileContent" class="hidden space-y-8 text-center">
+                <div id="profileTextHeader" class="space-y-2"></div>
                 
-                <div id="loyaltyBar" class="grid grid-cols-10 gap-1.5 py-4"></div>
-                
-                <div class="border-t border-white/10 pt-4">
-                    <p class="text-[9px] font-black uppercase text-green-500 mb-4 tracking-widest">Historique Commandes</p>
-                    <div id="userOrdersList" class="space-y-2 max-h-48 overflow-y-auto pr-2">
-                        </div>
+                <div class="space-y-4">
+                    <p class="text-[10px] font-black uppercase opacity-30 tracking-widest">Progression Fidélité (10ème offerte)</p>
+                    <div id="loyaltyBar" class="grid grid-cols-10 gap-2 px-2"></div>
                 </div>
 
-                <button onclick="handleLogout()" class="w-full text-red-500 font-black text-[9px] uppercase underline mt-4 tracking-widest">Déconnexion</button>
-            </div>
-
-            <div id="authForms" class="space-y-4">
-                <h2 class="text-xl font-900 uppercase text-center mb-6 italic">Espace Fidélité</h2>
-                <input type="email" id="authEmail" placeholder="EMAIL" class="address-input">
-                <input type="password" id="authPass" placeholder="MOT DE PASSE" class="address-input">
-                <button onclick="handleLogin()" class="w-full bg-green-500 text-black py-4 rounded-2xl font-900 uppercase italic">Se connecter</button>
-                <button onclick="handleRegister()" class="w-full text-[9px] font-black opacity-40 uppercase text-center">Créer un profil</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminPanel" class="fixed inset-0 z-[30000] bg-black overflow-y-auto hidden p-4 md:p-8">
-        <div class="max-w-6xl mx-auto space-y-8 pb-20">
-            <div class="flex justify-between items-center border-b border-white/10 pb-6"><h2 class="text-2xl font-900 text-green-500 uppercase italic">Admin Panel</h2><button onclick="closeAdmin()" class="text-4xl">&times;</button></div>
-            
-            <div class="grid lg:grid-cols-3 gap-6">
-                <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest">Ajouter un produit</h3>
-                    <input type="text" id="newProdName" placeholder="NOM DU GOÛT" class="address-input">
-                    <input type="number" id="newProdStock" placeholder="QUANTITÉ STOCK" class="address-input">
-                    <div class="w-full h-32 rounded-2xl border-2 border-dashed border-white/10 relative bg-white/5 flex items-center justify-center">
-                        <img id="preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
-                        <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
-                        <p class="text-[8px] font-bold opacity-30 uppercase">Cliquez pour photo</p>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-[30px] space-y-4">
+                    <p class="text-[9px] font-black text-green-500 uppercase tracking-widest">🎁 Ton Lien de Parrainage</p>
+                    <p class="text-[8px] opacity-40 uppercase leading-relaxed font-bold">Partage ce lien : si un ami commande, tu reçois 1 point fidélité bonus !</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="refLink" readonly class="address-input text-[10px] text-center bg-black/50 border-white/5">
+                        <button onclick="copyRef()" class="bg-white text-black px-6 rounded-xl font-black text-[10px] hover:bg-green-500 transition-colors">COPIER</button>
                     </div>
-                    <button onclick="addNewProductAdmin()" class="w-full bg-white text-black py-3 rounded-xl font-black uppercase text-[10px]">Valider l'ajout</button>
                 </div>
-                <div class="glass p-6 rounded-3xl text-center">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">État Boutique</h3>
-                    <button onclick="toggleStoreStatus()" id="statusBtn" class="w-full py-8 rounded-2xl font-black uppercase italic transition-all"></button>
+
+                <div class="space-y-4 text-left">
+                    <p class="text-[10px] font-black uppercase opacity-30 tracking-widest ml-2">Tes Commandes</p>
+                    <div id="userOrdersList" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
                 </div>
-                <div class="glass p-6 rounded-3xl">
-                    <h3 class="text-[10px] font-black text-green-500 uppercase mb-4 tracking-widest">Clients</h3>
-                    <div id="adminUserList" class="space-y-2 overflow-y-auto max-h-48 pr-2"></div>
-                </div>
+
+                <button onclick="handleLogout()" class="text-red-500 font-black text-[10px] uppercase underline tracking-widest">Déconnexion</button>
             </div>
 
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-[10px] font-black text-green-500 uppercase mb-6 tracking-widest">Dernières Commandes Globales</h3>
-                <div id="adminOrdersDisplay" class="space-y-3"></div>
+            <div id="authForms" class="space-y-5">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-900 uppercase italic">Rejoindre le <span class="text-green-500">Club</span></h3>
+                    <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em] mt-2">Accédez à vos cadeaux et vos points</p>
+                </div>
+                <input type="email" id="authEmail" placeholder="VOTRE ADRESSE EMAIL" class="address-input">
+                <input type="password" id="authPass" placeholder="VOTRE MOT DE PASSE" class="address-input">
+                <div class="grid grid-cols-1 gap-3 pt-4">
+                    <button onclick="handleLogin()" class="bg-green-500 text-black py-5 rounded-[22px] font-900 uppercase italic text-sm tracking-tighter">Se Connecter</button>
+                    <button onclick="handleRegister()" class="bg-white/5 text-white py-5 rounded-[22px] font-900 uppercase italic text-[11px] border border-white/10">Créer un compte</button>
+                </div>
             </div>
-
-            <div id="adminStockList" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
         </div>
     </div>
 
     <script>
         const MON_WHATSAPP = "33785141135";
         const ADMIN_PASS = "2908";
-        let inventory = [], users = [], allOrders = [], storeStatus = true, currentUser = null, cart = [], tempImageData = "";
+        const COUT_ACHAT_PUFF = 4.50;
+        
+        let inventory = [], users = [], allOrders = [], storeStatus = true, currentUser = null, cart = [], salesChart = null;
 
+        // --- FIREBASE CORE SYNC ---
         window.addEventListener('firebase-ready', () => {
             const { ref, onValue } = window.fb;
-            onValue(ref(window.db, 'inventory'), snap => { inventory = snap.val() ? Object.values(snap.val()) : []; renderCatalogue(); refreshAdmin(); });
-            onValue(ref(window.db, 'users'), snap => { 
-                users = snap.val() ? Object.entries(snap.val()).map(([key, val]) => ({...val, fbKey: key})) : []; 
-                updateUserUI(); 
-                refreshAdmin(); 
+            
+            // Sync Inventory
+            onValue(ref(window.db, 'inventory'), snap => {
+                inventory = snap.val() ? Object.values(snap.val()) : [];
+                renderCatalogue();
+                renderAdminStock();
             });
-            onValue(ref(window.db, 'orders'), snap => { allOrders = snap.val() ? Object.values(snap.val()) : []; refreshAdmin(); updateUserUI(); });
-            onValue(ref(window.db, 'storeStatus'), snap => { storeStatus = snap.val() ?? true; checkStatus(); renderCatalogue(); renderCart(); });
+
+            // Sync Users
+            onValue(ref(window.db, 'users'), snap => {
+                users = snap.val() ? Object.values(snap.val()) : [];
+                updateUserUI();
+                if(document.getElementById('adminPanel').offsetParent) updateTopClients();
+            });
+
+            // Sync Orders
+            onValue(ref(window.db, 'orders'), snap => {
+                allOrders = snap.val() ? Object.values(snap.val()) : [];
+                if(localStorage.getItem('jnr_admin_session')) {
+                    updateAnalytics();
+                    refreshAdmin();
+                    updateTopClients();
+                }
+                updateUserUI();
+            });
+
+            // Sync Store Status
+            onValue(ref(window.db, 'storeStatus'), snap => {
+                storeStatus = snap.val() ?? true;
+                checkStatus();
+            });
+
+            // Auth Check
             currentUser = JSON.parse(localStorage.getItem('jnr_user_session'));
-            initAdminDropzone();
+            
+            // Close Splash
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
+            }, 1200);
         });
 
-        function toggleVerifyModal() { document.getElementById('verifyModal').classList.toggle('active'); }
+        // --- UI FUNCTIONS ---
         function toggleCart() { document.getElementById('cartModal').classList.toggle('translate-x-full'); }
-        function toggleFaq(btn) { btn.nextElementSibling.classList.toggle('open'); }
-        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
-        function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
         function openAuth() { document.getElementById('authModal').classList.add('active'); }
-        function closeInvoice() { document.getElementById('invoiceModal').classList.remove('active'); }
+        function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
+        function closeAdmin() { document.getElementById('adminPanel').classList.add('hidden'); }
 
         function checkStatus() {
             const ind = document.getElementById('statusIndicator');
             const btn = document.getElementById('statusBtn');
-            ind.innerHTML = storeStatus ? `<span class="bg-green-500 w-2 h-2 rounded-full mr-2"></span>OUVERT` : `<span class="bg-orange-500 w-2 h-2 rounded-full mr-2"></span>PRÉ-COMMANDE`;
-            if(btn) { 
-                btn.innerText = storeStatus ? "BOUTIQUE OUVERTE" : "MODE PRÉ-COMMANDE"; 
-                btn.style.background = storeStatus ? "#22c55e" : "#f97316";
-                btn.style.color = storeStatus ? "#000" : "#fff";
+            ind.innerHTML = storeStatus ? `<span class="bg-green-500 w-2.5 h-2.5 rounded-full mr-3 shadow-[0_0_10px_#22c55e]"></span>OUVERT MAINTENANT` : `<span class="bg-orange-500 w-2.5 h-2.5 rounded-full mr-3 animate-pulse"></span>MODE PRÉ-COMMANDE`;
+            if(btn) {
+                btn.innerText = storeStatus ? "PASSER LE SITE EN PRÉ-COMMANDE" : "RÉOUVRIR LE SITE AU PUBLIC";
+                btn.style.background = storeStatus ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)";
+                btn.style.color = storeStatus ? "#ef4444" : "#22c55e";
+                btn.style.border = `1px solid ${storeStatus ? "#ef444433" : "#22c55e33"}`;
             }
         }
 
         function toggleStoreStatus() { window.fb.set(window.fb.ref(window.db, 'storeStatus'), !storeStatus); }
 
+        // --- CATALOGUE & PRODUCTS ---
         function renderCatalogue() {
-            const cont = document.getElementById('catalogue');
+            const cont = document.getElementById('catalogue'); if(!cont) return;
             const q = document.getElementById('searchInput').value.toLowerCase();
-            if(!cont) return; cont.innerHTML = "";
+            cont.innerHTML = "";
+            
             inventory.filter(i => i.name.toLowerCase().includes(q)).forEach(item => {
                 cont.innerHTML += `
-                    <div class="glass rounded-3xl p-4 text-center">
-                        <div class="img-container mb-4"><img src="${item.img}" class="product-card-img"></div>
-                        <h3 class="text-[9px] font-black uppercase mb-4">${item.name}</h3>
-                        <button onclick="addToCart('${item.id}')" class="btn-add-cart w-full py-3 rounded-xl text-[9px] font-black uppercase italic">
-                            ${item.stock > 0 ? (storeStatus?'Ajouter • 10€':'Réserver • 10€') : 'Rupture'}
-                        </button>
-                    </div>`;
+                <div class="product-card glass rounded-[35px] p-5 text-center relative overflow-hidden transition-all">
+                    <div class="img-container mb-6"><img src="${item.img}" class="product-card-img"></div>
+                    <h3 class="text-[11px] font-black uppercase mb-5 tracking-widest px-2">${item.name}</h3>
+                    <button onclick="addToCart('${item.id}')" class="btn-add-cart w-full py-4 rounded-2xl text-[10px] font-black uppercase italic tracking-tighter" ${item.stock <= 0 ? 'disabled' : ''}>
+                        ${item.stock > 0 ? (storeStatus ? '10€ • Ajouter au panier' : '10€ • Réserver') : 'Épuisé'}
+                    </button>
+                    ${item.stock < 5 && item.stock > 0 ? '<div class="absolute top-4 left-4 bg-red-500 text-white text-[7px] font-black px-3 py-1.5 rounded-full uppercase">Stock Limité</div>' : ''}
+                </div>`;
             });
         }
 
+        function renderAdminStock() {
+            const cont = document.getElementById('adminStockList'); if(!cont) return;
+            cont.innerHTML = "";
+            inventory.forEach(item => {
+                cont.innerHTML += `
+                <div class="bg-white/5 p-4 rounded-2xl flex items-center gap-4 border border-white/5">
+                    <img src="${item.img}" class="w-12 h-12 rounded-xl object-cover">
+                    <div class="flex-grow">
+                        <p class="text-[10px] font-black uppercase tracking-widest">${item.name}</p>
+                        <p class="text-[9px] opacity-40 uppercase font-bold">En Stock: ${item.stock}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="updateStock('${item.id}', 1)" class="w-8 h-8 bg-green-500/20 text-green-500 rounded-lg font-black">+</button>
+                        <button onclick="updateStock('${item.id}', -1)" class="w-8 h-8 bg-red-500/20 text-red-500 rounded-lg font-black">-</button>
+                        <button onclick="deleteProduct('${item.id}')" class="w-8 h-8 bg-red-500 text-white rounded-lg font-black">×</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('newProdName').value, img = document.getElementById('newProdImg').value, stock = parseInt(document.getElementById('newProdStock').value);
+            if(!name || !img || isNaN(stock)) return alert("Veuillez remplir tous les champs correctement !");
+            const id = "P-" + Date.now();
+            window.fb.set(window.fb.ref(window.db, 'inventory/' + id), { id, name, img, stock });
+            document.getElementById('newProdName').value = ""; document.getElementById('newProdImg').value = ""; document.getElementById('newProdStock').value = "";
+        }
+
+        function updateStock(id, delta) {
+            const item = inventory.find(x => x.id === id);
+            if(item) {
+                const newStock = Math.max(0, item.stock + delta);
+                window.fb.update(window.fb.ref(window.db, 'inventory/' + id), { stock: newStock });
+            }
+        }
+
+        function deleteProduct(id) { if(confirm("Supprimer définitivement ce goût ?")) window.fb.remove(window.fb.ref(window.db, 'inventory/' + id)); }
+
+        // --- CART & ORDERS ---
         function addToCart(id) {
             const i = inventory.find(x => x.id == id);
-            if(i && i.stock > 0) { cart.push(i); updateCartCount(); renderCart(); toggleCart(); }
+            if(i && i.stock > 0) {
+                cart.push(i);
+                updateCartCount();
+                renderCart();
+                toggleCart();
+            }
         }
 
         function updateCartCount() { document.getElementById('cartCount').innerText = cart.length; }
 
         function renderCart() {
-            const container = document.getElementById('cartItems');
+            const container = document.getElementById('cartItems'); if(!container) return;
             const zone = document.getElementById('uZone').value;
             const pay = document.getElementById('uPay').value;
-            container.innerHTML = cart.length === 0 ? `<div class="text-center py-20 opacity-20 text-[10px]">VOTRE PANIER EST VIDE</div>` : "";
+            
+            container.innerHTML = cart.length === 0 ? '<div class="text-center py-24 opacity-20 text-[11px] font-black uppercase tracking-widest">Votre panier est vide</div>' : "";
+            
             cart.forEach((item, idx) => {
-                container.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl text-[9px] font-black uppercase"><span>${item.name}</span><button onclick="cart.splice(${idx},1);renderCart();updateCartCount();" class="text-red-500">RETIRER</button></div>`;
+                container.innerHTML += `
+                <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
+                    <div class="flex items-center gap-4">
+                        <img src="${item.img}" class="w-10 h-10 rounded-lg object-cover">
+                        <span class="text-[10px] font-black uppercase tracking-widest">${item.name}</span>
+                    </div>
+                    <button onclick="cart.splice(${idx},1);renderCart();updateCartCount();" class="text-red-500 font-black text-[9px] uppercase hover:underline">Supprimer</button>
+                </div>`;
             });
+
             let total = cart.length * 10;
+            if(cart.length >= 5) { total -= 3; document.getElementById('packNotice').classList.remove('hidden'); } else { document.getElementById('packNotice').classList.add('hidden'); }
             if(zone === "Agglo") total += 3;
             if(pay === "CB") total += 0.50;
+            
             document.getElementById('totalAmount').innerText = total.toFixed(2) + "€";
-            const btn = document.getElementById('btnSendOrder');
-            btn.innerText = storeStatus ? "⚡ VALIDER MA COMMANDE" : "🕒 RÉSERVER (PROCHAINE TOURNÉE)";
-            btn.style.background = storeStatus ? "#22c55e" : "#f97316";
         }
 
         function sendOrder() {
-            const street = document.getElementById('uStreet').value, zip = document.getElementById('uZip').value;
-            if(!street || !zip || cart.length === 0) return alert("Veuillez remplir votre adresse complète.");
+            const street = document.getElementById('uStreet').value;
+            if(!street || cart.length === 0) return alert("Veuillez renseigner votre adresse !");
+            
             const oID = Math.random().toString(36).substr(2, 6).toUpperCase();
-            const total = document.getElementById('totalAmount').innerText, items = cart.map(i => i.name).join(', ');
-            const userEmail = currentUser ? currentUser.email : "Client Invité";
-
-            // CORRECTIF EMAILJS
-            const templateParams = {
-                to_name: "Admin Uber Jnr",
-                from_name: userEmail,
-                message: `Nouvelle commande de ${items}. Montant: ${total}. Livraison: ${street}, ${zip}`,
-                user_email: userEmail 
+            const order = {
+                id: oID,
+                user: currentUser ? currentUser.email : "Invité",
+                items: cart.map(i => i.name).join(', '),
+                qty: cart.length,
+                total: parseFloat(document.getElementById('totalAmount').innerText),
+                date: new Date().toLocaleDateString('fr-FR'),
+                timestamp: Date.now(),
+                status: 'pending'
             };
-            emailjs.send("service_xsn8p5e", "template_g9wuz9p", templateParams);
 
-            const order = { id: oID, user: userEmail, items, total, date: new Date().toLocaleString(), status: storeStatus ? 'pending' : 'preorder', address: `${street}, ${zip}` };
             window.fb.set(window.fb.ref(window.db, 'orders/' + oID), order);
-            
-            if(currentUser) {
-                const target = users.find(u => u.email === currentUser.email);
-                if(target) window.fb.update(window.fb.ref(window.db, `users/${target.fbKey}`), { orders: (target.orders || 0) + cart.length });
-            }
-            
-            cart.forEach(c => window.fb.update(window.fb.ref(window.db, 'inventory/' + c.id), { stock: c.stock - 1 }));
-
-            const msg = `*NOUVELLE COMMANDE #${oID}*\n👤 Client: ${userEmail}\n📦 Articles: ${items}\n📍 Adresse: ${street}, ${zip}\n💰 Total: ${total}`;
-            document.getElementById('successModal').classList.add('active');
-            
-            setTimeout(() => { 
-                document.getElementById('successModal').classList.remove('active'); 
-                showInvoice(order);
-                window.open(`https://wa.me/${MON_WHATSAPP}?text=${encodeURIComponent(msg)}`); 
-            }, 2000);
+            window.open(`https://wa.me/${MON_WHATSAPP}?text=NOUVELLE COMMANDE ${oID}%0AGoûts: ${order.items}%0AAdresse: ${street}%0ATotal: ${order.total}€`);
             
             cart = []; updateCartCount(); toggleCart();
         }
 
-        function showInvoice(o) {
-            document.getElementById('invNum').innerText = "FACTURE #" + o.id;
-            document.getElementById('invDate').innerText = "DATE : " + o.date;
-            document.getElementById('invUser').innerText = "CLIENT : " + o.user;
-            document.getElementById('invAddr').innerText = "ADRESSE : " + o.address;
-            document.getElementById('invItems').innerHTML = o.items.split(', ').map(i => `<tr><td class="py-1">${i}</td><td class="text-right">10.00€</td></tr>`).join('');
-            document.getElementById('invTotal').innerText = "TOTAL : " + o.total;
-            document.getElementById('invoiceModal').classList.add('active');
-        }
-
+        // --- ADMIN ANALYTICS ---
         function handleAdminAuth() {
-            if(prompt("Code d'accès Admin :") === ADMIN_PASS) document.getElementById('adminPanel').classList.remove('hidden');
+            if (localStorage.getItem('jnr_admin_session') === 'active' || prompt("Code Admin :") === ADMIN_PASS) {
+                localStorage.setItem('jnr_admin_session', 'active');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                updateAnalytics();
+            }
         }
 
-        function refreshAdmin() {
-            const uList = document.getElementById('adminUserList'); if(uList) uList.innerHTML = "";
-            users.forEach(u => { uList.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[9px] uppercase font-black"><span>${u.email} (${u.orders||0})</span><button onclick="window.fb.remove(window.fb.ref(window.db, 'users/${u.fbKey}'))" class="text-red-500">SUPPR</button></div>`; });
+        function updateAnalytics() {
+            let ca = 0, vents = 0, history = {};
+            const last7Days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toLocaleDateString('fr-FR'); }).reverse();
+            last7Days.forEach(d => history[d] = 0);
             
-            const oList = document.getElementById('adminOrdersDisplay'); if(oList) oList.innerHTML = "";
-            allOrders.slice().reverse().slice(0, 10).forEach(o => { 
-                oList.innerHTML += `<div class="bg-white/5 p-4 rounded-xl flex justify-between text-[9px] font-black uppercase"><div><p class="text-green-500">#${o.id} - ${o.user}</p><p class="opacity-50">${o.items}</p></div><button onclick="window.fb.remove(window.fb.ref(window.db, 'orders/${o.id}'))" class="text-red-500">X</button></div>`; 
+            allOrders.forEach(o => {
+                ca += o.total;
+                vents += o.qty;
+                if(history[o.date] !== undefined) history[o.date] += o.total;
             });
 
-            const sList = document.getElementById('adminStockList'); if(sList) sList.innerHTML = "";
-            inventory.forEach(i => { sList.innerHTML += `<div class="glass p-2 text-center rounded-xl"><img src="${i.img}" class="w-8 h-8 mx-auto mb-1"><p class="text-[7px] font-black">${i.name}</p><p class="text-green-500 text-[9px]">${i.stock} EN STOCK</p></div>`; });
+            document.getElementById('statCA').innerText = ca.toFixed(2) + "€";
+            document.getElementById('statVentes').innerText = vents;
+            document.getElementById('statBenef').innerText = (ca - (vents * COUT_ACHAT_PUFF)).toFixed(2) + "€";
+            
+            initChart(Object.keys(history), Object.values(history));
+        }
+
+        function initChart(labels, data) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if(salesChart) salesChart.destroy();
+            const grad = ctx.createLinearGradient(0, 0, 0, 300); grad.addColorStop(0, 'rgba(34, 197, 94, 0.2)'); grad.addColorStop(1, 'rgba(34, 197, 94, 0)');
+            
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: '#22c55e',
+                        borderWidth: 3,
+                        backgroundColor: grad,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#22c55e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false }, ticks: { color: '#333', font: { size: 9, weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function updateTopClients() {
+            const stats = {};
+            allOrders.forEach(o => { if(o.user !== "Invité") stats[o.user] = (stats[o.user] || 0) + o.total; });
+            const sorted = Object.entries(stats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const list = document.getElementById('topClientsList');
+            list.innerHTML = sorted.length ? "" : "<p class='text-[10px] opacity-20 uppercase font-black'>Aucun client inscrit</p>";
+            sorted.forEach(([email, spent], idx) => {
+                list.innerHTML += `<div class="bg-white/5 p-5 rounded-2xl flex justify-between items-center border border-white/5">
+                    <span class="text-[10px] font-black uppercase tracking-widest">#${idx+1} ${email.split('@')[0]}</span>
+                    <span class="text-[11px] font-black italic text-green-500">${spent.toFixed(2)}€</span>
+                </div>`;
+            });
+        }
+
+        function sendBroadcast(platform) {
+            const msg = document.getElementById('broadcastMsg').value;
+            if(!msg) return alert("Écrivez un message !");
+            if(platform === 'snap') { navigator.clipboard.writeText(msg); alert("Copié pour Snapchat !"); }
+            else { window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
+        }
+
+        // --- AUTH & USER PROFILE ---
+        function handleLogin() {
+            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
+            const u = users.find(x => x.email === e && x.pass === p);
+            if(u) {
+                currentUser = u;
+                localStorage.setItem('jnr_user_session', JSON.stringify(u));
+                updateUserUI();
+                closeAuth();
+            } else alert("Identifiants incorrects !");
         }
 
         function handleRegister() {
             const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            if(!e || !p) return alert("Veuillez remplir tous les champs.");
-            const key = btoa(e).replace(/=/g, "");
-            window.fb.set(window.fb.ref(window.db, 'users/' + key), { email: e, pass: p, orders: 0 });
-            alert("Profil créé avec succès !");
-        }
-
-        function handleLogin() {
-            const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            const user = users.find(u => u.email === e && u.pass === p);
-            if(user) { currentUser = user; localStorage.setItem('jnr_user_session', JSON.stringify(user)); updateUserUI(); closeAuth(); } 
-            else alert("Identifiants incorrects.");
+            if(!e.includes('@') || p.length < 4) return alert("Email ou mot de passe invalide !");
+            window.fb.set(window.fb.ref(window.db, 'users/' + btoa(e).replace(/=/g,"")), { email: e, pass: p });
+            alert("Compte créé ! Connectez-vous.");
         }
 
         function updateUserUI() {
-            if(!currentUser) {
-                document.getElementById('userBtn').innerText = "S'IDENTIFIER";
-                document.getElementById('authForms').classList.remove('hidden');
-                document.getElementById('profileContent').classList.add('hidden');
-                return;
-            }
-            const fresh = users.find(u => u.email === currentUser.email) || currentUser;
-            const nbOrders = fresh.orders || 0;
-            const pts = nbOrders % 10;
-            const remain = 10 - pts;
-
-            document.getElementById('userBtn').innerText = fresh.email.split('@')[0].toUpperCase();
+            if(!currentUser) return;
+            const userOrders = allOrders.filter(o => o.user === currentUser.email);
+            const points = userOrders.length % 10;
+            
+            document.getElementById('userBtn').innerText = currentUser.email.split('@')[0].toUpperCase();
             document.getElementById('authForms').classList.add('hidden');
             document.getElementById('profileContent').classList.remove('hidden');
             
-            // TEXTE DE FIDÉLITÉ
             document.getElementById('profileTextHeader').innerHTML = `
-                <h2 class="text-lg font-900 text-green-500 uppercase italic text-center">${fresh.email}</h2>
-                <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center space-y-1">
-                    <p class="text-[10px] font-black uppercase tracking-widest">Points Fidélité</p>
-                    <p class="text-xl font-900 italic text-green-500">${pts} / 10</p>
-                    <p class="text-[8px] opacity-60 font-bold uppercase">
-                        ${remain === 0 || (nbOrders > 0 && pts === 0) ? "PROCHAINE PUFF OFFERTE ! 🎉" : "PLUS QUE " + remain + " COMMANDES AVANT LA GRATUITE !"}
-                    </p>
-                </div>
-            `;
-            
-            // POINTS VERTS
-            const bar = document.getElementById('loyaltyBar'); 
-            if(bar) {
-                bar.innerHTML = "";
-                for(let i=0; i<10; i++) bar.innerHTML += `<div class="loyalty-dot ${i < pts ? 'active' : ''}"></div>`;
-            }
+                <h2 class="text-2xl font-900 text-green-500 italic tracking-tighter uppercase">${currentUser.email.split('@')[0]}</h2>
+                <div class="flex justify-center gap-2 mt-2">
+                    <span class="badge-vip">Membre Premium</span>
+                    <span class="text-[10px] font-black uppercase opacity-30 tracking-widest">${userOrders.length} COMMANDES</span>
+                </div>`;
 
-            // HISTORIQUE PERSONNEL
-            const hList = document.getElementById('userOrdersList');
-            if(hList) {
-                const myOrders = allOrders.filter(o => o.user === fresh.email).reverse();
-                hList.innerHTML = myOrders.length === 0 ? `<p class="text-[8px] opacity-30 text-center py-4 uppercase">Aucune commande passée</p>` : "";
-                myOrders.forEach(o => {
-                    hList.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center text-[8px] font-bold uppercase"><div class="flex flex-col"><span>#${o.id}</span><span class="opacity-40 text-[7px]">${o.date}</span></div><span class="text-green-500">${o.total}</span></div>`;
-                });
-            }
+            // Loyalty Dots
+            const lBar = document.getElementById('loyaltyBar'); lBar.innerHTML = "";
+            for(let i=0; i<10; i++) { lBar.innerHTML += `<div class="loyalty-dot ${i < points ? 'active' : ''}"></div>`; }
+
+            // Ref Link
+            document.getElementById('refLink').value = `https://uberjnr.fr/?ref=${btoa(currentUser.email).substring(0,8)}`;
+
+            // Order History
+            const hist = document.getElementById('userOrdersList'); hist.innerHTML = "";
+            userOrders.reverse().forEach(o => {
+                hist.innerHTML += `<div class="bg-white/5 p-4 rounded-xl flex justify-between text-[9px] font-black uppercase"><span>${o.date}</span><span>${o.total}€</span></div>`;
+            });
         }
 
         function handleLogout() { localStorage.removeItem('jnr_user_session'); location.reload(); }
-
-        function initAdminDropzone() {
-            const fi = document.getElementById('fileInput'), prev = document.getElementById('preview');
-            if(!fi) return;
-            fi.onchange = (e) => { 
-                const reader = new FileReader(); 
-                reader.onload = (ev) => { 
-                    tempImageData = ev.target.result; 
-                    prev.src = tempImageData; 
-                    prev.classList.remove('hidden'); 
-                }; 
-                reader.readAsDataURL(e.target.files[0]); 
-            };
-        }
-
-        async function addNewProductAdmin() {
-            const n = document.getElementById('newProdName').value, s = parseInt(document.getElementById('newProdStock').value);
-            if(!n || isNaN(s) || !tempImageData) return alert("Veuillez remplir le nom, le stock et ajouter une image.");
-            const id = Date.now().toString();
-            await window.fb.set(window.fb.ref(window.db, 'inventory/' + id), { id, name: n.toUpperCase(), stock: s, img: tempImageData });
-            alert("Goût ajouté au catalogue !");
-            document.getElementById('newProdName').value = "";
-            document.getElementById('newProdStock').value = "";
-            document.getElementById('preview').classList.add('hidden');
+        function toggleFaq(btn) { btn.nextElementSibling.classList.toggle('open'); btn.querySelector('span:last-child').innerText = btn.nextElementSibling.classList.contains('open') ? '−' : '+'; }
+        function copyRef() { const c = document.getElementById("refLink"); c.select(); document.execCommand("copy"); alert("Lien de parrainage copié !"); }
+        function refreshAdmin() {
+            const l = document.getElementById('adminOrdersDisplay'); if(!l) return;
+            l.innerHTML = "";
+            allOrders.slice().reverse().slice(0, 15).forEach(o => {
+                l.innerHTML += `<div class="bg-white/5 p-4 rounded-xl flex justify-between items-center text-[9px] font-black uppercase border border-white/5">
+                    <span>${o.user.split('@')[0]} - ${o.date}</span>
+                    <span class="text-green-500">${o.total}€</span>
+                </div>`;
+            });
         }
     </script>
 </body>
