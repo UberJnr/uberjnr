@@ -13,6 +13,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        // AJOUT DES IMPORTS POUR LES IMAGES CI-DESSOUS
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDNAAwvuIxB_7nv8y_E9lXjbPoZNUH3gvE",
@@ -26,246 +28,280 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const storage = getStorage(app); // Initialise le stockage
+
         window.db = db;
+        window.storage = storage; // Rend le stockage accessible partout
         window.fb = { ref, set, onValue, update, remove, push };
+        // Rend les fonctions d'upload accessibles pour ton bouton "Ajouter"
+        window.fs = { sRef, uploadBytes, getDownloadURL };
+        
         window.dispatchEvent(new Event('firebase-ready'));
         emailjs.init("s8K2wPwkBJHNJVlO5"); 
     </script>
 
     <style>
-        :root {
-            --u-green: #22c55e;
-            --u-red: #ef4444;
-            --u-orange: #f97316;
-            --u-blue: #3b82f6;
-        }
+    :root {
+        --u-green: #22c55e;
+        --u-red: #ef4444;
+        --u-orange: #f97316;
+        --u-blue: #3b82f6;
+    }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            scroll-behavior: smooth;
-        }
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        scroll-behavior: smooth;
+    }
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #000; 
-            color: #fff; 
-            overflow-x: hidden; 
-            -webkit-tap-highlight-color: transparent;
-            display: flex;
-            flex-direction: column;
-        }
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        background: #000; 
+        color: #fff; 
+        overflow-x: hidden; 
+        -webkit-tap-highlight-color: transparent;
+        display: flex;
+        flex-direction: column;
+    }
 
-        /* --- SPLASH SCREEN DETAILED --- */
-        #splash {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 100000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
+    /* --- SPLASH SCREEN --- */
+    #splash {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.8s ease, visibility 0.8s;
+    }
 
-        .splash-logo {
-            font-size: 3.5rem;
-            font-weight: 800;
-            font-style: italic;
-            letter-spacing: -2px;
-            animation: pulse-logo 1.5s ease-in-out infinite;
-        }
+    .splash-logo {
+        font-size: 3.5rem;
+        font-weight: 800;
+        font-style: italic;
+        letter-spacing: -2px;
+        animation: pulse-logo 1.5s ease-in-out infinite;
+    }
 
-        @keyframes pulse-logo {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-        }
+    @keyframes pulse-logo {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.7; }
+    }
 
-        .loader-bar {
-            width: 140px;
-            height: 2px;
-            background: rgba(255,255,255,0.05);
-            margin-top: 25px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-        }
+    .loader-bar {
+        width: 140px;
+        height: 2px;
+        background: rgba(255,255,255,0.05);
+        margin-top: 25px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+    }
 
-        .loader-progress {
-            position: absolute;
-            height: 100%;
-            width: 45%;
-            background: var(--u-green);
-            animation: loader-slide 1.5s infinite ease-in-out;
-        }
+    .loader-progress {
+        position: absolute;
+        height: 100%;
+        width: 45%;
+        background: var(--u-green);
+        animation: loader-slide 1.5s infinite ease-in-out;
+    }
 
-        @keyframes loader-slide {
-            0% { left: -50%; }
-            100% { left: 100%; }
-        }
+    @keyframes loader-slide {
+        0% { left: -50%; }
+        100% { left: 100%; }
+    }
 
-        /* --- UI COMPONENTS --- */
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-dark { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        
-        .promo-container {
-            background: var(--u-green);
-            overflow: hidden;
-            width: 100%;
-            padding: 14px 0;
-            position: fixed;
-            top: 0;
-            z-index: 9999;
-            display: flex;
-        }
+    /* --- UI COMPONENTS --- */
+    .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    
+    .promo-container {
+        background: var(--u-green);
+        overflow: hidden;
+        width: 100%;
+        padding: 14px 0;
+        position: fixed;
+        top: 0;
+        z-index: 9999;
+        display: flex;
+    }
 
-        .promo-wrapper {
-            display: flex;
-            white-space: nowrap;
-            animation: marquee-infinite 40s linear infinite;
-        }
+    .promo-wrapper {
+        display: flex;
+        white-space: nowrap;
+        animation: marquee-infinite 40s linear infinite;
+    }
 
-        .promo-text {
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #000;
-            font-style: italic;
-            padding-right: 80px;
-        }
+    .promo-text {
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #000;
+        font-style: italic;
+        padding-right: 80px;
+    }
 
-        @keyframes marquee-infinite {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+    @keyframes marquee-infinite {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
 
-        .hero-title {
-            font-size: clamp(3.5rem, 15vw, 9rem);
-            line-height: 0.75;
-            font-weight: 800;
-            font-style: italic;
-            text-transform: uppercase;
-            letter-spacing: -4px;
-        }
+    .hero-title {
+        font-size: clamp(3.5rem, 15vw, 9rem);
+        line-height: 0.75;
+        font-weight: 800;
+        font-style: italic;
+        text-transform: uppercase;
+        letter-spacing: -4px;
+    }
 
-        .img-container {
-            width: 100%;
-            aspect-ratio: 1/1;
-            background: radial-gradient(circle, #111 0%, #000 100%);
-            border-radius: 30px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            position: relative;
-        }
+    .img-container {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: radial-gradient(circle, #111 0%, #000 100%);
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        position: relative;
+    }
 
-        .product-card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-        }
+    .product-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+    }
 
-        .product-card:hover .product-card-img {
-            transform: scale(1.1) rotate(2deg);
-        }
+    .product-card:hover .product-card-img {
+        transform: scale(1.1) rotate(2deg);
+    }
 
-        .address-input {
-            width: 100%;
-            background: #080808;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 16px;
-            border-radius: 18px;
-            color: white;
-            outline: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .address-input:focus {
-            border-color: var(--u-green);
-            background: #0f0f0f;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
-        }
+    .address-input {
+        width: 100%;
+        background: #080808;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 16px;
+        border-radius: 18px;
+        color: white;
+        outline: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 15000;
-            background: rgba(0, 0, 0, 0.98);
-            backdrop-filter: blur(20px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal.active { display: flex; animation: fadeIn 0.4s ease; }
+    .address-input:focus {
+        border-color: var(--u-green);
+        background: #0f0f0f;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+    }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 15000;
+        background: rgba(0, 0, 0, 0.98);
+        backdrop-filter: blur(20px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-        .loyalty-dot {
-            height: 8px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .loyalty-dot.active {
-            background: var(--u-green);
-            box-shadow: 0 0 15px var(--u-green);
-            transform: scaleY(1.2);
-        }
+    .modal.active { display: flex; animation: fadeIn 0.4s ease; }
 
-        .faq-ans {
-            overflow: hidden;
-            max-height: 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-        }
-        .faq-ans.open {
-            max-height: 500px;
-            padding: 20px;
-            opacity: 0.6;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-        }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .chart-container {
-            position: relative;
-            height: 280px;
-            width: 100%;
-            background: rgba(255,255,255,0.01);
-            border-radius: 32px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
+    .loyalty-dot {
+        height: 8px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
 
-        .btn-add-cart {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--u-green);
-            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-        .btn-add-cart:hover:not(:disabled) {
-            background: var(--u-green);
-            color: #000;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
-        }
+    .loyalty-dot.active {
+        background: var(--u-green);
+        box-shadow: 0 0 15px var(--u-green);
+        transform: scaleY(1.2);
+    }
 
-        .badge-vip {
-            background: linear-gradient(90deg, #ffd700, #ff8c00);
-            color: black;
-            font-size: 7px;
-            font-weight: 900;
-            padding: 3px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
+    .faq-ans {
+        overflow: hidden;
+        max-height: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+    }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
-    </style>
+    .faq-ans.open {
+        max-height: 500px;
+        padding: 20px;
+        opacity: 0.6;
+        border-top: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-add-cart {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--u-green);
+        transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+    }
+
+    .btn-add-cart:hover:not(:disabled) {
+        background: var(--u-green);
+        color: #000;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
+    }
+
+    .badge-vip {
+        background: linear-gradient(90deg, #ffd700, #ff8c00);
+        color: black;
+        font-size: 7px;
+        font-weight: 900;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+    }
+
+    /* --- NOUVEAUX STYLES DROP-ZONE (PARFAITEMENT RESPONSIVE) --- */
+    #drop-zone {
+        width: 100%;
+        height: 140px;
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.02);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #drop-zone:hover {
+        border-color: var(--u-green);
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    #img-preview {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        z-index: 10;
+    }
+
+    #drop-prompt {
+        text-align: center;
+        z-index: 5;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+</style>
 </head>
 <body class="bg-black">
 
@@ -372,8 +408,11 @@
                 <span id="totalAmount" class="text-4xl font-900 text-green-500 italic tracking-tighter">0€</span>
             </div>
 
-            <div class="space-y-3">
-                <input type="text" id="uStreet" placeholder="ADRESSE DE LIVRAISON (RUE, NUMÉRO)" class="address-input uppercase">
+<div class="space-y-3">
+                <input type="text" id="uStreet" placeholder="ADRESSE (N° ET RUE)" class="address-input uppercase">
+                
+                <input type="text" id="uCity" placeholder="VILLE (EX: SAINTE-SAVINE)" class="address-input uppercase">
+
                 <div class="grid grid-cols-2 gap-3">
                     <select id="uZone" onchange="renderCart()" class="address-input appearance-none uppercase">
                         <option value="Troyes">Troyes (0€)</option>
@@ -381,14 +420,12 @@
                     </select>
                     <select id="uPay" onchange="renderCart()" class="address-input appearance-none uppercase">
                         <option value="Espèces">Espèces</option>
-                        <option value="CB">Carte Bancaire (+0.50€)</option>
+                        <option value="CB">CB (+0.50€)</option>
                     </select>
                 </div>
             </div>
 
             <button onclick="sendOrder()" class="w-full bg-green-500 text-black py-6 rounded-[22px] font-900 uppercase italic tracking-tighter hover:bg-green-400 transition-all shadow-2xl shadow-green-500/20 active:scale-95">Commander sur WhatsApp</button>
-        </div>
-    </div>
 
     <div id="adminPanel" class="fixed inset-0 z-[30000] bg-black overflow-y-auto hidden p-6 md:p-12">
         <div class="max-w-7xl mx-auto space-y-10 pb-32">
@@ -407,16 +444,23 @@
                 <div class="analytics-card"><p class="text-[10px] opacity-40 font-black mb-2 uppercase">Total Puffs</p><h4 id="statVentes" class="text-4xl font-900 text-orange-500 italic">0</h4></div>
             </div>
 
-            <div class="grid lg:grid-cols-2 gap-8">
-                <div class="glass p-8 rounded-[35px] space-y-6">
-                    <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">➕ Nouveau Goût</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="newProdName" placeholder="NOM DU GOÛT (EX: TRIPLE MANGO)" class="address-input uppercase">
-                        <input type="text" id="newProdImg" placeholder="LIEN DE L'IMAGE" class="address-input">
-                        <input type="number" id="newProdStock" placeholder="QUANTITÉ EN STOCK" class="address-input">
-                        <button onclick="addNewProduct()" class="w-full bg-green-500 text-black py-5 rounded-2xl font-black uppercase text-[11px]">Ajouter au Catalogue</button>
-                    </div>
-                </div>
+            <div class="glass p-8 rounded-[35px] space-y-6">
+    <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">➕ Nouveau Goût</h3>
+    <div class="space-y-4">
+        <input type="text" id="newProdName" placeholder="NOM DU GOÛT (EX: TRIPLE MANGO)" class="address-input uppercase">
+        
+        <div id="drop-zone" class="w-full h-32 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center bg-white/5 cursor-pointer hover:border-green-500 transition-colors overflow-hidden">
+            <input type="file" id="file-input" class="hidden" accept="image/*">
+            <div id="drop-prompt" class="text-center">
+                <span class="text-[10px] font-black opacity-40 uppercase">Glisser une image ici<br>ou cliquer pour choisir</span>
+            </div>
+            <img id="img-preview" class="hidden h-full w-full object-contain p-2">
+        </div>
+
+        <input type="number" id="newProdStock" placeholder="QUANTITÉ EN STOCK" class="address-input">
+        <button id="addProdBtn" onclick="addNewProduct()" class="w-full bg-green-500 text-black py-5 rounded-2xl font-black uppercase text-[11px]">Ajouter au Catalogue</button>
+    </div>
+</div>
 
                 <div class="glass p-8 rounded-[35px] space-y-6">
                     <h3 class="text-[11px] font-black text-green-500 uppercase tracking-[0.3em]">📢 Broadcast Marketing</h3>
@@ -664,26 +708,46 @@
         }
 
         function sendOrder() {
-            const street = document.getElementById('uStreet').value;
-            if(!street || cart.length === 0) return alert("Veuillez renseigner votre adresse !");
-            
-            const oID = Math.random().toString(36).substr(2, 6).toUpperCase();
-            const order = {
-                id: oID,
-                user: currentUser ? currentUser.email : "Invité",
-                items: cart.map(i => i.name).join(', '),
-                qty: cart.length,
-                total: parseFloat(document.getElementById('totalAmount').innerText),
-                date: new Date().toLocaleDateString('fr-FR'),
-                timestamp: Date.now(),
-                status: 'pending'
-            };
+    const street = document.getElementById('uStreet').value;
+    const city = document.getElementById('uCity').value; // Récupère la ville
+    
+    // Vérification que tout est rempli
+    if(!street || !city || cart.length === 0) {
+        return alert("Veuillez renseigner votre adresse, votre ville et ajouter des articles !");
+    }
+    
+    const oID = Math.random().toString(36).substr(2, 6).toUpperCase();
+    const order = {
+        id: oID,
+        user: currentUser ? currentUser.email : "Invité",
+        items: cart.map(i => i.name).join(', '),
+        qty: cart.length,
+        total: parseFloat(document.getElementById('totalAmount').innerText),
+        address: street,
+        city: city.toUpperCase(), // Stocke la ville en majuscules
+        date: new Date().toLocaleDateString('fr-FR'),
+        timestamp: Date.now(),
+        status: 'pending'
+    };
 
-            window.fb.set(window.fb.ref(window.db, 'orders/' + oID), order);
-            window.open(`https://wa.me/${MON_WHATSAPP}?text=NOUVELLE COMMANDE ${oID}%0AGoûts: ${order.items}%0AAdresse: ${street}%0ATotal: ${order.total}€`);
-            
-            cart = []; updateCartCount(); toggleCart();
-        }
+    // Envoi à Firebase
+    window.fb.set(window.fb.ref(window.db, 'orders/' + oID), order);
+    
+    // Message WhatsApp ultra clair pour toi
+    const text = `NOUVELLE COMMANDE ${oID}%0A` +
+                 `--------------------------%0A` +
+                 `Produits: ${order.items}%0A` +
+                 `Total: ${order.total}€%0A` +
+                 `Lieu: ${street}, ${order.city}%0A` +
+                 `Paiement: ${document.getElementById('uPay').value}`;
+
+    window.open(`https://wa.me/${MON_WHATSAPP}?text=${text}`);
+    
+    // Reset du panier
+    cart = []; 
+    updateCartCount(); 
+    toggleCart();
+}
 
         // --- ADMIN ANALYTICS ---
         function handleAdminAuth() {
